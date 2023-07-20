@@ -1,5 +1,4 @@
 ---
-import cover from "@assets/og_cover.jpg";
 import { ensureTrailingSlash } from "@utils";
 
 export interface Props {
@@ -39,9 +38,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <!-- OG -->
     <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={ensureTrailingSlash(canonicalURL)} />
-    <meta property="og:image" content={cover.src} />
+    <meta property="og:image" content="/og_cover.jpg" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content="/og_cover.jpg" />
   </head>
   <body class="min-h-full text-neutral-300 scroll">
     <main
