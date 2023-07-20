@@ -1,21 +1,24 @@
 ---
 import cover from "@assets/og_cover.jpg";
+import { ensureTrailingSlash } from "@utils";
 
 export interface Props {
   title: string;
   description?: string;
+  overflow?: boolean;
 }
 
-const { title, description = "Yan Thomas' personal website" } = Astro.props;
+const {
+  title,
+  description = "Yan Thomas' personal website",
+  overflow = true,
+} = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-
-const ensureTrailingSlash = (url: string | URL) =>
-  url.toString().replace(/\/$/, "") + "/";
 ---
 
 <!DOCTYPE html>
-<html class="h-full" lang="en">
+<html class:list={["h-full", { "overflow-hidden": !overflow }]} lang="en">
   <head>
     <!-- High Priority -->
     <meta charset="UTF-8" />
@@ -40,8 +43,12 @@ const ensureTrailingSlash = (url: string | URL) =>
     <meta property="og:url" content={ensureTrailingSlash(canonicalURL)} />
     <meta property="og:image" content={cover.src} />
   </head>
-  <body class="min-h-full text-neutral-300">
-    <slot />
+  <body class="min-h-full text-neutral-300 scroll">
+    <main
+      class="min-h-screen pt-4 px-5 sm:grid sm:grid-cols-2 md:grid-cols-3 md:px-6 max-w-7xl mx-auto"
+    >
+      <slot />
+    </main>
   </body>
 </html>
 
@@ -56,5 +63,13 @@ const ensureTrailingSlash = (url: string | URL) =>
 
   html {
     background-image: url("/noise.svg");
+  }
+
+  body::-webkit-scrollbar {
+    width: 0.5em;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    @apply bg-neutral-500;
   }
 </style>

@@ -5,40 +5,36 @@ import Avatar from "@components/Avatar.astro";
 ---
 
 <MainLayout title="About | Yan Thomas">
-  <main
-    class="min-h-screen pt-4 px-5 sm:grid sm:grid-cols-2 md:grid-cols-3 md:px-6 max-w-7xl mx-auto"
-  >
-    <div class="sm:hidden">
-      <Navigation />
-    </div>
-    <div class="grid place-content-center">
-      <div class="md:hidden mt-12 mb-4">
-        <Avatar />
-      </div>
-      <div class="text-center md:text-left">
-        <p class="text-neutral-300 md:text-xl lg:text-2xl">
-          Hello there visitor, I am
-        </p>
-        <h1 class="text-neutral-50 text-4xl font-bold md:text-5xl lg:text-6xl">
-          Yan Thomas
-        </h1>
-      </div>
-      <div class="mt-8 border-l-2 py-2 pl-4">
-        <p>
-          I’m a web developer from Brazil, currently working as a open-source
-          maintainer of Astro.
-        </p>
-        <p class="pt-2">
-          Building accessible, fast, and exciting websites is what I am
-          passionate about.
-        </p>
-      </div>
-    </div>
-    <div class="hidden md:flex md:items-center">
+  <div class="sm:hidden">
+    <Navigation />
+  </div>
+  <div class="grid place-content-center">
+    <div class="md:hidden mt-12 mb-4">
       <Avatar />
     </div>
-    <div class="hidden sm:block my-auto">
-      <Navigation />
+    <div class="text-center md:text-left">
+      <p class="text-neutral-300 md:text-xl lg:text-2xl">
+        Hello there visitor, I am
+      </p>
+      <h1 class="text-neutral-50 text-4xl font-bold md:text-5xl lg:text-6xl">
+        Yan Thomas
+      </h1>
     </div>
-  </main>
+    <div class="mt-8 border-l-2 py-2 pl-4">
+      <p>
+        I’m a web developer from Brazil, currently working as a open-source
+        maintainer of Astro.
+      </p>
+      <p class="pt-2">
+        Building accessible, fast, and exciting websites is what I am passionate
+        about.
+      </p>
+    </div>
+  </div>
+  <div class="hidden md:flex md:items-center">
+    <Avatar />
+  </div>
+  <div class="hidden sm:block my-auto">
+    <Navigation />
+  </div>
 </MainLayout>
