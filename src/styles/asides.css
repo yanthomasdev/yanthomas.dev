@@ -1,0 +1,42 @@
+.callout {
+	border-left: 4px solid var(--callout-color);
+	padding: var(--space-2xs) var(--space-xs);
+	color: var(--callout-color);
+}
+
+.callout-indicator {
+	display: flex;
+	align-items: center;
+	line-height: 1;
+	margin-bottom: var(--space-s);
+}
+
+.callout-title {
+	font-weight: bold;
+	font-size: var(--font-size-0);
+	color: var(--callout-color);
+}
+
+.callout-indicator > svg {
+	margin-right: var(--space-2xs);
+}
+
+.callout-note {
+	--callout-color: var(--color-terminal-blue);
+}
+
+.callout-success {
+	--callout-color: var(--color-terminal-green);
+}
+
+.callout-caution {
+	--callout-color: var(--color-terminal-yellow);
+}
+
+.callout-danger {
+	--callout-color: var(--color-terminal-red);
+}
+
+.callout-tip {
+	--callout-color: var(--color-terminal-pink);
+}

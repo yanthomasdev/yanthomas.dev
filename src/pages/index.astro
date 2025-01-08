@@ -1,16 +1,67 @@
 ---
-
+import Avatar from "#assets/avatar.svg";
+import Logo from "#assets/logo.svg";
+import Base from "#layouts/Base.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base
+	title="Yan | Home"
+	description="Your friendly neighborhood open-source developer."
+>
+	<main id="__page-content">
+		<div class="home-container">
+			<div>
+				<Avatar />
+			</div>
+			<div class="prose flow">
+				<div>
+					<h1>
+						Hello there, I am
+						<span class="sr-only">Yan Thomas</span>
+					</h1>
+					<Logo />
+				</div>
+				<p>
+					I'm an open-source software developer from Brazil, working
+					on tooling, documentation, and accessibility.
+				</p>
+				<p>
+					I believe, stand, and work for a future where technology can
+					make a more democratic, inclusive, and free world.
+				</p>
+				<p>
+					You might know my work as a core maintainer of <a
+						href="https://astro.build"
+					>Astro</a> or as the author of <a href="https://lunaria.dev"
+					>Lunaria</a>. If you'd like to support my work, you can <a
+						href="https://github.com/sponsors/yanthomasdev"
+					>sponsor me on GitHub</a>.
+				</p>
+			</div>
+		</div>
+	</main>
+</Base>
+
+<style>
+.prose h1 {
+	font-weight: normal;
+	font-size: var(--font-size--1);
+}
+
+.home-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-m);
+}
+
+.home-container > :first-child {
+	flex-basis: 0;
+	flex-grow: 999;
+	min-width: min(20rem, 100%);
+}
+
+.home-container > :last-child {
+	flex-basis: 50%;
+	flex-grow: 1;
+}
+</style>
