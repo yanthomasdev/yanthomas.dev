@@ -1,0 +1,116 @@
+---
+import Base from "#layouts/Base.astro";
+import { getCollection, render } from "astro:content";
+import "#styles/asides.css";
+
+export async function getStaticPaths() {
+	const articles = await getCollection("articles");
+	return articles.map((article) => ({
+		params: {
+			article: article.id,
+		},
+		props: { article },
+	}));
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+---
+
+<Base title={article.data.title} description={article.data.description}>
+	<main id="__page-content">
+		<div class="article-header prose">
+			<p>
+				Published on
+				{Intl.DateTimeFormat("en", { dateStyle: "long" }).format(
+					article.data.date,
+				)}
+			</p>
+			<h1>{article.data.title}</h1>
+		</div>
+		<div class="article-container">
+			<div class="flow prose">
+				<Content />
+			</div>
+			<aside>
+				<div class="toc flow">
+					<h2>Table of contents</h2>
+					<nav>
+						<ul>
+							{headings.map(({ text, slug, depth }) => (
+								<li class={`depth-${depth}`}>
+									<a href={`#${slug}`}>{text}</a>
+								</li>
+							))}
+						</ul>
+					</nav>
+				</div>
+			</aside>
+		</div>
+	</main>
+</Base>
+
+<style>
+.article-header {
+	width: 100%;
+	max-width: 75ch;
+	margin-bottom: var(--space-m);
+}
+
+.article-header p {
+	font-size: var(--font-size--2);
+	margin-bottom: var(--space-2xs);
+}
+
+.article-container {
+	display: flex;
+	flex-wrap: wrap-reverse;
+	gap: var(--space-l);
+	margin-bottom: var(--space-m);
+}
+
+.article-container > :first-child {
+	flex-basis: 0;
+	flex-grow: 999;
+	min-width: min(100%, 65ch);
+	max-width: 75ch;
+}
+
+.article-container > :last-child {
+	flex-grow: 1;
+}
+
+.toc {
+	position: sticky;
+	top: 0;
+	padding-top: var(--space-s);
+	--flow-space: var(--space-2xs);
+}
+
+.toc h2 {
+	font-size: var(--font-size--1);
+}
+
+.toc ul {
+	padding: 0;
+	list-style: none;
+}
+
+.toc a {
+	font-size: var(--font-size--2);
+	color: var(--color-text-dim);
+	text-decoration: none;
+}
+
+.toc a:hover {
+	text-decoration: underline;
+}
+
+.depth-2 {
+	padding-left: var(--space-2xs);
+}
+
+.depth-3 {
+	padding-left: var(--space-m);
+}
+</style>

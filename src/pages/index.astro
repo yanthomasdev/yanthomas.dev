@@ -1,40 +1,67 @@
 ---
-import MainLayout from "@layouts/MainLayout.astro";
-import Navigation from "@components/Navigation.astro";
-import Avatar from "@components/Avatar.astro";
+import Avatar from "#assets/avatar.svg";
+import Logo from "#assets/logo.svg";
+import Base from "#layouts/Base.astro";
 ---
 
-<MainLayout title="About | Yan Thomas">
-  <div class="sm:hidden">
-    <Navigation />
-  </div>
-  <div class="grid place-content-center">
-    <div class="md:hidden mt-12 mb-4">
-      <Avatar />
-    </div>
-    <div class="text-center md:text-left">
-      <p class="text-neutral-300 md:text-xl lg:text-2xl">
-        Hello there visitor, I am
-      </p>
-      <h1 class="text-neutral-50 text-4xl font-bold md:text-5xl lg:text-6xl">
-        Yan Thomas
-      </h1>
-    </div>
-    <div class="mt-8 border-l-2 py-2 pl-4">
-      <p>
-        I’m a web developer from Brazil, currently working as a open-source
-        maintainer of Astro.
-      </p>
-      <p class="pt-2">
-        Building accessible, fast, and exciting websites is what I am passionate
-        about.
-      </p>
-    </div>
-  </div>
-  <div class="hidden md:flex md:items-center">
-    <Avatar />
-  </div>
-  <div class="hidden sm:block my-auto">
-    <Navigation />
-  </div>
-</MainLayout>
+<Base
+	title="Yan | Home"
+	description="Your friendly neighborhood open-source developer."
+>
+	<main id="__page-content">
+		<div class="home-container">
+			<div>
+				<Avatar />
+			</div>
+			<div class="prose flow">
+				<div>
+					<h1>
+						Hello there, I am
+						<span class="sr-only">Yan Thomas</span>
+					</h1>
+					<Logo />
+				</div>
+				<p>
+					I'm an open-source software developer from Brazil, working
+					on tooling, documentation, and accessibility.
+				</p>
+				<p>
+					I believe, stand, and work for a future where technology can
+					make a more democratic, inclusive, and free world.
+				</p>
+				<p>
+					You might know my work as a core maintainer of <a
+						href="https://astro.build"
+					>Astro</a> or as the author of <a href="https://lunaria.dev"
+					>Lunaria</a>. If you'd like to support my work, you can <a
+						href="https://github.com/sponsors/yanthomasdev"
+					>sponsor me on GitHub</a>.
+				</p>
+			</div>
+		</div>
+	</main>
+</Base>
+
+<style>
+.prose h1 {
+	font-weight: normal;
+	font-size: var(--font-size--1);
+}
+
+.home-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-m);
+}
+
+.home-container > :first-child {
+	flex-basis: 0;
+	flex-grow: 999;
+	min-width: min(20rem, 100%);
+}
+
+.home-container > :last-child {
+	flex-basis: 50%;
+	flex-grow: 1;
+}
+</style>

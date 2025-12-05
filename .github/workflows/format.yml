@@ -1,0 +1,16 @@
+name: Formatting Check
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code using Git
+              uses: actions/checkout@v4
+
+            - name: Check formatting with dprint
+              uses: dprint/check@v2.3

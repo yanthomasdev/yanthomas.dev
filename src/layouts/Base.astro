@@ -1,0 +1,133 @@
+---
+import { Font } from "astro:assets";
+import "#styles/reset.css";
+import "#styles/global.css";
+
+interface Props {
+	title: string;
+	description: string;
+}
+
+const pages: Record<string, string> = {
+	Home: "/",
+	Articles: "/articles",
+};
+
+const links: Record<string, string> = {
+	GitHub: "https://github.com/yanthomasdev",
+	Bluesky: "https://bsky.app/profile/yanthomas.dev",
+};
+
+const { title, description } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<Font cssVariable="--font-space-mono" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<a class="skip-to-content" href="#__page-content"> Skip to content </a>
+		<header>
+			<nav aria-label="Main">
+				<ul>
+					{Object.entries(pages).map(([name, path]) => (
+						<li>
+							<a
+								href={path}
+								aria-current={path === Astro.url.pathname ? "page" : "false"}
+							>
+								<span class="sr-only">{name}</span>
+								<span aria-hidden="true">[ {name} ]</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
+			<nav aria-label="Social">
+				<ul>
+					{Object.entries(links).map(([name, url]) => (
+						<li>
+							<a href={url}>
+								<span class="sr-only">{name}</span>
+								<span aria-hidden="true">[ {name} ]</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
+		</header>
+		<slot />
+	</body>
+</html>
+
+<style>
+@view-transition {
+	navigation: auto;
+}
+
+html,
+body {
+	min-height: 100%;
+	scrollbar-gutter: stable;
+}
+
+body {
+	max-width: 72rem;
+	margin-inline: auto;
+}
+
+header,
+nav,
+nav ul {
+	display: flex;
+	flex-direction: row;
+}
+
+header {
+	flex-wrap: wrap;
+	justify-content: space-between;
+	margin-bottom: var(--space-m);
+}
+
+nav ul {
+	column-gap: var(--space-xs);
+	flex-wrap: wrap;
+	list-style: none;
+	padding: 0;
+}
+
+nav li {
+	margin-bottom: var(--space-xs);
+}
+
+nav a {
+	text-wrap: nowrap;
+	text-decoration: none;
+}
+
+nav a[aria-current="page"] {
+	font-weight: bold;
+}
+
+.skip-to-content {
+	position: absolute;
+	left: -9999px;
+	z-index: 999;
+	padding: var(--space-s);
+	background-color: var(--color-background);
+	opacity: 0;
+}
+
+.skip-to-content:focus {
+	left: 50%;
+	transform: translateX(-50%);
+	opacity: 1;
+	outline-color: var(--color-links);
+}
+</style>

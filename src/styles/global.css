@@ -1,0 +1,142 @@
+:root {
+	/* Typography */
+	/* @link https://utopia.fyi/type/calculator?c=320,18,1.2,1240,20,1.25,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
+	--font-size--2: clamp(0.7813rem, 0.7747rem + 0.0326vw, 0.8rem);
+	--font-size--1: clamp(0.9375rem, 0.9158rem + 0.1087vw, 1rem);
+	--font-size-0: clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem);
+	--font-size-1: clamp(1.35rem, 1.2761rem + 0.3696vw, 1.5625rem);
+	--font-size-2: clamp(1.62rem, 1.5041rem + 0.5793vw, 1.9531rem);
+	--font-size-3: clamp(1.944rem, 1.771rem + 0.8651vw, 2.4414rem);
+	--font-size-4: clamp(2.3328rem, 2.0827rem + 1.2504vw, 3.0518rem);
+	--font-size-5: clamp(2.7994rem, 2.4462rem + 1.7658vw, 3.8147rem);
+
+	/* Spacing */
+	/* @link https://utopia.fyi/space/calculator?c=320,18,1.2,1240,20,1.25,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,&g=s,l,xl,12 */
+	--space-3xs: clamp(0.3125rem, 0.3125rem + 0vw, 0.3125rem);
+	--space-2xs: clamp(0.5625rem, 0.5408rem + 0.1087vw, 0.625rem);
+	--space-xs: clamp(0.875rem, 0.8533rem + 0.1087vw, 0.9375rem);
+	--space-s: clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem);
+	--space-m: clamp(1.6875rem, 1.6223rem + 0.3261vw, 1.875rem);
+	--space-l: clamp(2.25rem, 2.163rem + 0.4348vw, 2.5rem);
+	--space-xl: clamp(3.375rem, 3.2446rem + 0.6522vw, 3.75rem);
+	--space-2xl: clamp(4.5rem, 4.3261rem + 0.8696vw, 5rem);
+	--space-3xl: clamp(6.75rem, 6.4891rem + 1.3043vw, 7.5rem);
+
+	/* Pairs */
+	--space-3xs-2xs: clamp(0.3125rem, 0.2038rem + 0.5435vw, 0.625rem);
+	--space-2xs-xs: clamp(0.5625rem, 0.4321rem + 0.6522vw, 0.9375rem);
+	--space-xs-s: clamp(0.875rem, 0.7446rem + 0.6522vw, 1.25rem);
+	--space-s-m: clamp(1.125rem, 0.8641rem + 1.3043vw, 1.875rem);
+	--space-m-l: clamp(1.6875rem, 1.4049rem + 1.413vw, 2.5rem);
+	--space-l-xl: clamp(2.25rem, 1.7283rem + 2.6087vw, 3.75rem);
+	--space-xl-2xl: clamp(3.375rem, 2.8098rem + 2.8261vw, 5rem);
+	--space-2xl-3xl: clamp(4.5rem, 3.4565rem + 5.2174vw, 7.5rem);
+
+	/* Colors */
+
+	/* Base colors */
+	--color-terminal-gray-900: #1e1e2e;
+	--color-terminal-gray-700: #45475a;
+	--color-terminal-gray-500: #585b70;
+	--color-terminal-gray-300: #a6adc8;
+	--color-terminal-gray-100: #bac2de;
+	--color-terminal-red: #f38ba8;
+	--color-terminal-green: #a6e3a1;
+	--color-terminal-yellow: #f9e2af;
+	--color-terminal-blue: #89b4fa;
+	--color-terminal-pink: #f5c2e7;
+	--color-terminal-teal: #94e2d5;
+
+	/* Contextual colors */
+	--color-background: var(--color-terminal-gray-900);
+	--color-text: var(--color-terminal-gray-100);
+	--color-text-dim: var(--color-terminal-gray-300);
+	--color-links: var(--color-terminal-blue);
+}
+
+/* Expressive Code overrides */
+.expressive-code .title {
+	background-clip: border-box !important;
+	color: var(--color-text) !important;
+}
+
+/* Global styles */
+body {
+	background-color: var(--color-background);
+	color: var(--color-text);
+	font-family: var(--font-space-mono);
+	font-size: var(--font-size--1);
+	padding: var(--space-s-m);
+}
+
+a:hover,
+a:focus {
+	color: var(--color-links);
+}
+
+/* Utilities */
+.flow > * + * {
+	margin-top: var(--flow-space, 1em);
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+.prose {
+	--flow-space: var(--space-m);
+	hyphens: auto;
+}
+
+.prose :is(h1) {
+	font-size: var(--font-size-3);
+}
+
+.prose :is(h2) {
+	--flow-space: var(--space-xl);
+	font-size: var(--font-size-2);
+}
+
+.prose :is(h3) {
+	--flow-space: var(--space-l);
+	font-size: var(--font-size-1);
+}
+
+.prose :is(h1, h2, h3) {
+	overflow-wrap: anywhere;
+	hyphens: auto;
+	text-wrap: balance;
+}
+
+.prose :is(p, li, dl, figcaption, blockquote) {
+	max-width: 75ch;
+	text-wrap: pretty;
+	overflow-wrap: break-word;
+	color: var(--color-text-dim);
+}
+
+.prose :is(figure, table),
+.prose :is(figure, table) + * {
+	--flow-space: var(--space-2xl);
+}
+
+.prose :is(ul, ol) {
+	padding-inline-start: var(--space-m-l);
+}
+
+.prose :is(ul, ol):not([class]) li + li,
+.prose :is(ul, ol):not([class]) li > :is(ol, ul) {
+	margin-top: var(--space-xs);
+}
+
+.prose :is(hr) {
+	--flow-space: var(--space-2xl);
+}

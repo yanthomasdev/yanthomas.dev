@@ -1,21 +1,29 @@
 {
-  "name": "",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/mdx": "^0.19.7",
-    "@astrojs/sitemap": "^2.0.1",
-    "@astrojs/tailwind": "^4.0.0",
-    "@tailwindcss/typography": "^0.5.9",
-    "astro": "^2.7.2",
-    "astro-expressive-code": "^0.19.0",
-    "tailwindcss": "^3.0.24"
-  }
+	"name": "@yanthomasdev/website",
+	"type": "module",
+	"version": "2.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro check && astro build",
+		"preview": "astro preview",
+		"format": "dprint fmt"
+	},
+	"imports": {
+		"#*": "./src/*"
+	},
+	"dependencies": {
+		"@astrojs/check": "^0.9.6",
+		"@astrojs/mdx": "^4.3.12",
+		"astro": "^5.16.4",
+		"astro-expressive-code": "^0.38.3",
+		"hastscript": "^9.0.1",
+		"remark-directive": "^3.0.1",
+		"typescript": "^5.9.3",
+		"unist-util-visit": "^5.0.0"
+	},
+	"devDependencies": {
+		"dprint": "^0.50.2"
+	},
+	"packageManager": "pnpm@8.10.2+sha1.e0b68270e89c817ff88b7be62466a2128c53af02"
 }

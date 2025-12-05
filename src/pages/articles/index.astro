@@ -1,0 +1,78 @@
+---
+import Base from "#layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+const articles = await getCollection("articles");
+---
+
+<Base
+	title="Yan | Articles"
+	description="Archive of all my published articles."
+>
+	<main class="flow" id="__page-content">
+		<h1>Articles</h1>
+		{articles.length > 0 ? (
+			<ul class="flow">
+				{articles.map(({ id, data: { title, description, date } }) => (
+					<li>
+						<a href={`articles/${id}`}>
+							<div class="article">
+								<p class="date">
+									{Intl.DateTimeFormat("en", { dateStyle: "long" }).format(
+										date,
+									)}
+								</p>
+								<h2 class="title">{title}</h2>
+								<p class="description">{description}</p>
+							</div>
+						</a>
+					</li>
+				))}
+			</ul>
+		) : (
+			 <p class="prose">
+				 Perhaps the real articles are the friends we made along the
+				 way. Stay tuned!
+			 </p>
+		 )}
+	</main>
+</Base>
+
+<style>
+ul {
+	list-style: none;
+	padding: 0;
+	--flow-space: var(--space-l);
+}
+
+li a {
+	text-decoration: none;
+	outline-offset: 12px;
+	outline-color: var(--color-links);
+}
+
+.article {
+	max-width: 65ch;
+	--flow-space: var(--space-s);
+}
+
+.title {
+	font-size: var(--font-size-0);
+	margin-bottom: var(--space-xs);
+	text-wrap: balance;
+}
+
+.description,
+.date {
+	font-size: var(--font-size--2);
+	color: var(--color-text-dim);
+}
+
+.description {
+	text-wrap: pretty;
+}
+
+.date {
+	margin-bottom: var(--space-2xs);
+}
+</style>
