@@ -1,23 +1,26 @@
 import remarkAsides from "#scripts/asides.js";
 import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
 import expressiveCode from "astro-expressive-code";
-import { defineConfig, fontProviders } from "astro/config";
+import { defineConfig } from "astro/config";
 import remarkDirective from "remark-directive";
 
 // https://astro.build/config
 export default defineConfig({
 	site: "https://yanthomas.dev",
+	trailingSlash: "always",
 	integrations: [
 		expressiveCode({
 			themes: ["catppuccin-macchiato"],
 			styleOverrides: {
 				borderRadius: "0",
-				uiFontFamily: "var(--font-space-mono)",
+				uiFontFamily: "'Space Mono', monospace",
 				uiFontSize: "var(--font-size--2)",
-				codeFontFamily: "var(--font-space-mono)",
+				codeFontFamily: "'Space Mono', monospace",
 				codeFontSize: "var(--font-size--2)",
 			},
 		}),
+		sitemap(),
 		mdx(),
 	],
 	markdown: {
@@ -31,14 +34,5 @@ export default defineConfig({
 		contentIntellisense: true,
 		svgo: true,
 		clientPrerender: true,
-		fonts: [{
-			provider: fontProviders.google(),
-			name: "Space Mono",
-			cssVariable: "--font-space-mono",
-			weights: ["400", "700"],
-			styles: ["normal", "italic"],
-			subsets: ["latin"],
-			fallbacks: ["monospace"],
-		}],
 	},
 });

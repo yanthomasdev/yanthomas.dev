@@ -1,16 +1,17 @@
 ---
-import { Font } from "astro:assets";
 import "#styles/reset.css";
 import "#styles/global.css";
+import spaceMonoWoff2 from "@fontsource/space-mono/files/space-mono-latin-400-normal.woff2?url";
 
 interface Props {
 	title: string;
 	description: string;
+	id: string;
 }
 
 const pages: Record<string, string> = {
 	Home: "/",
-	Articles: "/articles",
+	Articles: "/articles/",
 };
 
 const links: Record<string, string> = {
@@ -18,17 +19,44 @@ const links: Record<string, string> = {
 	Bluesky: "https://bsky.app/profile/yanthomas.dev",
 };
 
-const { title, description } = Astro.props;
+const { title, description, id } = Astro.props;
 ---
 
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="sitemap" href="/sitemap-index.xml" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
-		<Font cssVariable="--font-space-mono" />
+		<meta property="og:title" content={title} />
+		<meta name="og:description" content={description} />
+		<meta
+			property="og:type"
+			content={Astro.url.pathname.match(/^\/articles\/.+/)
+			? "article"
+			: "website"}
+		/>
+		<meta property="og:url" content={Astro.url.href} />
+		<meta
+			property="og:image"
+			content={new URL(`/og/${id}.png/`, Astro.url)}
+		/>
+		<meta property="og:locale" content="en" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta
+			property="twitter:image"
+			content={new URL(`/og/${id}.png/`, Astro.url)}
+		/>
+		<meta name="twitter:site" content="yanthomasdev" />
+		<link
+			rel="preload"
+			as="font"
+			type="font/woff2"
+			href={spaceMonoWoff2}
+			crossorigin="anonymous"
+		/>
 		<title>{title}</title>
 	</head>
 	<body>
