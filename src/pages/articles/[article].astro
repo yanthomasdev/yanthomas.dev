@@ -17,7 +17,11 @@ const { article } = Astro.props;
 const { Content, headings } = await render(article);
 ---
 
-<Base title={article.data.title} description={article.data.description}>
+<Base
+	title={article.data.title}
+	description={article.data.description}
+	id={article.id}
+>
 	<main id="__page-content">
 		<div class="article-header prose">
 			<p>
