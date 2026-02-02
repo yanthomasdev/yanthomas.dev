@@ -48,7 +48,7 @@ The two mistakes I see many companies make:
 
 - They lack a [writing and style guide](https://learn.microsoft.com/en-us/style-guide/welcome/): it's a really important document to outline the tone, style, and decisions made on content. Without it, the many "chefs" in your documentation work all over each other; every page seems to have been made by someone different (you're not writing an anthology!), and decisions are lost to time. That all means, docs also need docs!
 
-- No one is responsible for it: your documentation needs a "head chef", they're the one responsible for ensuring everything is following the recipe and standards set. Generally, this should be your Senior/Staff Technical Writer or Docs Lead.
+- No one is responsible for the documentation: it needs a "head chef", they're the one responsible for ensuring everything is following the recipe and standards set. Generally, this should be your Senior/Staff Technical Writer or Docs Lead.
 
 Investing in documentation is investing in quality. The same way you need someone to architect the words that are written for the computer so that it's clean, efficient, and maintainable, you need someone who architects the words that are written for the much less precise, imperfect, and more critical human beings.
 
