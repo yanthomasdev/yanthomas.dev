@@ -46,7 +46,7 @@ Think of a signature restaurant: you have a big staff, an even bigger hall, and 
 
 The two mistakes I see many companies make:
 
-- They lack a [writing and style guide](https://learn.microsoft.com/en-us/style-guide/welcome/): it's a really important document to outline the tone, style, and decisions made on content. Without it, the many "chefs" in your documentation work all over each other, every page seems to have been made by someone different — you're not writing an anthology! —, and decisions are lost to time — that all means, docs also need docs!
+- They lack a [writing and style guide](https://learn.microsoft.com/en-us/style-guide/welcome/): it's a really important document to outline the tone, style, and decisions made on content. Without it, the many "chefs" in your documentation work all over each other; every page seems to have been made by someone different (you're not writing an anthology!), and decisions are lost to time. That all means, docs also need docs!
 
 - No one is responsible for it: your documentation needs a "head chef", they're the one responsible for ensuring everything is following the recipe and standards set. Generally, this should be your Senior/Staff Technical Writer or Docs Lead.
 
