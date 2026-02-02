@@ -34,11 +34,11 @@ Some folks go even further and make documentation the core of it all, through [D
 
 Regardless of the workflow or philosophy you choose, the key lesson is that documentation should be treated with care and priority, integrated as part of your product development. That is ultimately going to distinguish you from the competition, make your users happier, and increase adoption.
 
-## It is a perception of quality
+## It is a signal of quality
 
-The state of your documentation **is a perception of quality** about your product and company. If you want it to be seen as the "Apple of X", then your docs have to be equally polished.
+The state of your documentation **is a signal of the quality** of your product and company. If you want it to be seen as the "Apple of X", then your docs have to be equally polished.
 
-Put yourself in the shoes of a user: they open your beautiful landing page, go in the docs to learn more and what they see is typos, inconsistencies, confusing navigation, and so on — you signaled your product is only looks, and if docs weren't given any polish, what can guarantee the product is any better or even worthy of their data, money, and time?
+Put yourself in the shoes of a user: they open your beautiful landing page, go to the docs to learn more and find typos, inconsistencies, confusing navigation, and so on — you signaled that your product is only looks, and if the docs weren't given any polish, what can guarantee the product is any better or even worthy of their data, money, and time?
 
 If you want people to look into your product and believe it's a worthy investment, you have to show your company is mature and serious — and I don't mean that in a brand/tone way, it can be silly and fun, but you should always treat your users seriously and with respect.
 
