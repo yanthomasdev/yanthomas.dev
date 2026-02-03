@@ -30,19 +30,20 @@ export default function astroStarlightRemarkAsides() {
 				// logic to support :::tip{title="title"} syntax and default to Tip for :::tip
 				let title = node.attributes.title || callout.title;
 
-				node.attributes = {
-					...attributes,
-					class: "class" in attributes
-						? `callout callout-${node.name} ${attributes.class}`
-						: `callout callout-${node.name}`,
-				};
-
 				// logic to support :::tip[title] syntax
 				// remark-directive converts a container’s “label” to a paragraph at children[0] with the `directiveLabel` property set to true
 				if (node.children[0].data?.directiveLabel) {
 					title = node.children[0].children[0].value;
 					node.children.shift();
 				}
+
+				node.attributes = {
+					...attributes,
+					"aria-label": title,
+					class: "class" in attributes
+						? `callout callout-${node.name} ${attributes.class}`
+						: `callout callout-${node.name}`,
+				};
 
 				node.children = generate(title, node.children, callout.icon);
 

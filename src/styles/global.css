@@ -37,7 +37,9 @@
 	/* Base colors */
 	--color-terminal-gray-900: #1e1e2e;
 	--color-terminal-gray-700: #45475a;
-	--color-terminal-gray-500: #585b70;
+	--color-terminal-gray-600: #585b70;
+	--color-terminal-gray-500: #6c7086;
+	--color-terminal-gray-400: #7f849c;
 	--color-terminal-gray-300: #a6adc8;
 	--color-terminal-gray-100: #bac2de;
 	--color-terminal-red: #f38ba8;
@@ -206,6 +208,7 @@ a:focus {
 .prose {
 	--flow-space: var(--space-m);
 	hyphens: auto;
+	color: var(--color-text-dim);
 }
 
 .prose :is(h1) {
@@ -228,11 +231,10 @@ a:focus {
 	text-wrap: balance;
 }
 
-.prose :is(p, li, dl, figcaption, blockquote) {
+.prose :is(p, li, dl, figcaption) {
 	max-width: 75ch;
 	text-wrap: pretty;
 	overflow-wrap: break-word;
-	color: var(--color-text-dim);
 }
 
 .prose :is(figure, table),
@@ -251,6 +253,11 @@ a:focus {
 
 .prose :is(hr) {
 	--flow-space: var(--space-2xl);
+}
+
+.prose :is(blockquote) {
+	border-left: 4px solid var(--color-terminal-gray-700);
+	padding: var(--space-2xs) var(--space-xs);
 }
 
 /* Expressive Code overrides */

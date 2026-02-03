@@ -16,7 +16,7 @@ const articles = await getCollection("articles");
 			<ul class="flow">
 				{articles.map(({ id, data: { title, description, date } }) => (
 					<li>
-						<a href={`articles/${id}/`}>
+						<a href={`/articles/${id}/`}>
 							<div class="article">
 								<p class="date">
 									{Intl.DateTimeFormat("en", { dateStyle: "long" }).format(
