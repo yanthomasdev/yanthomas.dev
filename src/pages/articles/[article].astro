@@ -181,10 +181,9 @@ if (prose) {
 	}, { passive: true });
 
 	window.addEventListener("resize", measure);
-	window.addEventListener("load", measure);
-	document.fonts?.ready.then(measure);
-	new ResizeObserver(measure).observe(prose);
 
-	measure();
+	const observer = new ResizeObserver(measure);
+	observer.observe(prose);
+	observer.observe(document.documentElement);
 }
 </script>
