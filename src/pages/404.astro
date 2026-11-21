@@ -1,16 +1,126 @@
 ---
+import SiteBar from "#components/SiteBar.astro";
+import SiteFooter from "#components/SiteFooter.astro";
 import Base from "#layouts/Base.astro";
+
+const links = [
+	{ name: "GitHub", href: "https://github.com/yanthomasdev", icon: "github" },
+	{
+		name: "Bluesky",
+		href: "https://bsky.app/profile/yanthomas.dev",
+		icon: "bluesky",
+	},
+	{ name: "X", href: "https://x.com/yanthomasdev", icon: "x" },
+] as const;
 ---
 
 <Base
-	title="Yan | 404"
+	title="Not found"
 	description="This page does not exist. Are you lost?"
-	id="404"
+	ogId="404"
+	ogAlt="404 in pixel type beside a gray pixel-art avatar of a cat in round sunglasses."
+	noCanonical
 >
-	<main id="__page-content">
-		<div class="prose flow">
-			<h1>Page not found</h1>
-			<p>The page you tried to access doesn't exist.</p>
-		</div>
-	</main>
+	<div class="page">
+		<SiteBar links={links} />
+		<main>
+			<div>
+				<img src="/sprite-gray.svg" alt="" width="240" height="240" />
+				<h1>404</h1>
+			</div>
+			<p>
+				This page doesn’t exist, or it moved. <a href="/"
+				>Go back home</a>.
+			</p>
+		</main>
+		<SiteFooter always />
+	</div>
 </Base>
+
+<style>
+.page {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	min-height: 100dvh;
+	max-width: var(--page-max);
+	margin: 0 auto;
+	padding: 0 clamp(18px, 4vw, 40px);
+	box-sizing: border-box;
+}
+
+.page > :global(header) {
+	padding-right: 0;
+}
+
+main {
+	flex: 1 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-8);
+	padding: var(--space-12) 0;
+	text-align: center;
+}
+
+main > div {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: var(--space-8);
+}
+
+img {
+	flex: none;
+	width: 240px;
+	height: 240px;
+}
+
+h1 {
+	font-family: var(--font-pixel);
+	font-weight: 400;
+	font-size: 432px;
+	line-height: 0.8;
+	margin: 0;
+}
+
+p {
+	margin: 0;
+	max-width: 30em;
+	font-family: var(--font-read);
+	font-size: 1.3125rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 1000px) {
+	img {
+		width: 192px;
+		height: 192px;
+	}
+
+	h1 {
+		font-size: 345.6px;
+	}
+}
+
+@media (max-width: 600px) {
+	main > div {
+		gap: var(--space-4);
+	}
+
+	img {
+		width: 96px;
+		height: 96px;
+	}
+
+	h1 {
+		font-size: 172.8px;
+	}
+
+	p {
+		font-size: 1.125rem;
+	}
+}
+</style>

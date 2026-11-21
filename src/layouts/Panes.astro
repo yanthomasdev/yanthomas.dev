@@ -1,0 +1,177 @@
+---
+import Bar from "#components/Bar.astro";
+import SiteBar from "#components/SiteBar.astro";
+import SiteFooter from "#components/SiteFooter.astro";
+import ThemeSwitcher from "#components/ThemeSwitcher.astro";
+
+interface Props {
+	home?: boolean;
+	leftLabel?: string;
+	article?: boolean;
+}
+
+const { home = false, leftLabel, article = false } = Astro.props;
+const LeftTag = leftLabel ? "section" : "div";
+
+const links = [
+	{ name: "GitHub", href: "https://github.com/yanthomasdev", icon: "github" },
+	{
+		name: "Bluesky",
+		href: "https://bsky.app/profile/yanthomas.dev",
+		icon: "bluesky",
+	},
+	{ name: "X", href: "https://x.com/yanthomasdev", icon: "x" },
+] as const;
+---
+
+<div class="panes">
+	<div class="left">
+		<SiteBar links={links} home={home} />
+		<LeftTag class="content" aria-labelledby={leftLabel}>
+			<slot name="left" />
+		</LeftTag>
+	</div>
+
+	<div class="right">
+		<Bar side="right" home={home}>
+			<slot name="bar" />
+			<span class="switch"><ThemeSwitcher /></span>
+			<slot name="bar-end" />
+		</Bar>
+		<main
+			id="main"
+			tabindex="-1"
+			class:list={{ article, home }}
+		>
+			<slot />
+		</main>
+		<SiteFooter />
+	</div>
+</div>
+
+<style>
+.panes {
+	display: grid;
+	grid-template-columns: clamp(400px, 37vw, 536px) minmax(0, 1fr);
+	max-width: var(--page-max);
+	margin: 0 auto;
+	padding: 0 clamp(18px, 4vw, 40px);
+}
+
+.left {
+	position: sticky;
+	top: 0;
+	height: 100vh;
+	height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	border-right: 1px solid var(--faint);
+	box-sizing: border-box;
+}
+
+.content {
+	container-type: inline-size;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-6);
+	padding: var(--space-12) clamp(var(--space-8), 4vw, var(--pane-gap))
+		var(--space-10) 0;
+}
+
+.right {
+	min-width: 0;
+}
+
+main {
+	padding: var(--space-12) 0 var(--space-24)
+		clamp(var(--space-8), 4vw, var(--pane-gap));
+	display: flex;
+	flex-direction: column;
+	gap: 56px;
+	container-type: inline-size;
+}
+
+main:focus {
+	outline: none;
+}
+
+main.article {
+	gap: 0;
+	padding-bottom: max(var(--space-24), 18vh);
+}
+
+.switch {
+	display: contents;
+}
+
+@media (max-width: 1000px) {
+	.panes {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.left {
+		position: static;
+		height: auto;
+		border-right: 0;
+	}
+
+	.content {
+		padding: var(--space-10) 0 var(--space-12);
+		overflow: visible;
+	}
+
+	main {
+		padding: var(--space-10) 0 var(--space-18);
+	}
+
+	main.article {
+		padding-bottom: max(var(--space-18), 12vh);
+	}
+
+	main.home {
+		border-top: 1px solid var(--faint);
+	}
+
+	.switch {
+		display: none;
+	}
+}
+
+@media (min-width: 1001px) and (max-height: 880px) {
+	.content {
+		gap: var(--space-4);
+		padding-top: var(--space-8);
+		padding-bottom: var(--space-6);
+	}
+}
+
+@media (min-width: 1001px) and (max-height: 800px) {
+	.content {
+		padding-top: var(--space-5);
+		padding-bottom: var(--space-2);
+	}
+}
+
+@media print {
+	.panes {
+		display: block;
+		max-width: none;
+		padding: 0;
+	}
+
+	.left {
+		position: static;
+		height: auto;
+		border: 0;
+	}
+
+	.content, main {
+		padding: 0;
+	}
+}
+</style>

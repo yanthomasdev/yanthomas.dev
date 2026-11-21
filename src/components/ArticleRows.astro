@@ -1,0 +1,166 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+	articles: CollectionEntry<"articles">[];
+}
+
+const { articles } = Astro.props;
+
+const rows = articles.map((article) => ({
+	href: `/articles/${article.id}/`,
+	date: article.data.date.toISOString().slice(0, 10),
+	title: article.data.title,
+	description: article.data.description,
+	meta: `${
+		Math.max(
+			1,
+			Math.round((article.body ?? "").trim().split(/\s+/).length / 230),
+		)
+	} min`,
+}));
+---
+
+{rows.length > 0 ? (
+	<div>
+		{rows.map((row) => (
+			<a class="row" href={row.href}>
+				<time datetime={row.date}>{row.date}</time>
+				<span>
+					<small>
+						<time datetime={row.date}>{row.date}</time>{" "}
+						<span>{row.meta}</span>
+					</small>
+					<strong>{row.title}</strong>
+					<span>{row.description}</span>
+				</span>
+				<span>{row.meta}</span>
+			</a>
+		))}
+	</div>
+) : <p>No articles yet.</p>}
+
+<style>
+div {
+	border-bottom: 1px solid var(--faint);
+}
+
+.row {
+	display: grid;
+	grid-template-columns: 11ch minmax(0, 1fr) 7ch;
+	gap: 6px 3ch;
+	align-items: baseline;
+	padding: 18px 12px;
+	margin: 0 -12px;
+	text-decoration: none;
+	color: var(--fg);
+	background-image: linear-gradient(var(--faint), var(--faint));
+	background-size: calc(100% - 24px) 1px;
+	background-position: 12px 0;
+	background-repeat: no-repeat;
+}
+
+.row:focus-visible {
+	outline-offset: -2px;
+}
+
+.row > time, .row > span:last-child {
+	color: var(--dim);
+}
+
+.row > span:last-child {
+	text-align: right;
+}
+
+time + span {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+
+strong {
+	font-size: 1.125rem;
+	font-weight: 500;
+	line-height: 1.35;
+	text-wrap: balance;
+}
+
+strong + span {
+	font-family: var(--font-read);
+	font-size: 1.0625rem;
+	line-height: 1.5;
+	color: var(--dim);
+}
+
+small {
+	display: none;
+	font-size: 0.8125rem;
+	color: var(--dim);
+}
+
+small span {
+	display: none;
+	margin-left: 2ch;
+}
+
+p {
+	margin: 0;
+	padding: 18px 0;
+	border-top: 1px solid var(--faint);
+	border-bottom: 1px solid var(--faint);
+	font-family: var(--font-read);
+	font-size: 1.0625rem;
+	line-height: 1.5;
+	color: var(--dim);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	a.row:hover {
+		background-color: var(--fg);
+		background-image: none;
+		color: var(--bg);
+	}
+
+	a.row:hover * {
+		color: var(--bg);
+	}
+}
+
+@media (max-width: 1200px) {
+	.row {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+
+	.row > time {
+		display: none;
+	}
+
+	small {
+		display: block;
+	}
+}
+
+@media (max-width: 1000px) {
+	.row {
+		margin: 0;
+		padding: 18px 0;
+		background-size: 100% 1px;
+		background-position: 0 0;
+	}
+}
+
+@media (max-width: 720px) {
+	.row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.row > span:last-child {
+		display: none;
+	}
+
+	small span {
+		display: inline;
+	}
+}
+</style>

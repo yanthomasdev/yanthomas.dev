@@ -1,0 +1,137 @@
+---
+import ContentsMeters from "#components/ContentsMeters.astro";
+
+interface Props {
+	sections: { href: string; text: string }[];
+}
+
+const { sections } = Astro.props;
+---
+
+<contents-disclosure>
+	<details>
+		<summary>
+			Contents<span>{sections[0]?.text}</span>
+		</summary>
+		<div>
+			<ContentsMeters sections={sections} place="panel" />
+		</div>
+	</details>
+</contents-disclosure>
+
+<style>
+contents-disclosure {
+	display: contents;
+}
+
+details {
+	position: relative;
+	flex: 1 1 auto;
+	min-width: 0;
+	align-self: stretch;
+}
+
+summary {
+	display: flex;
+	align-items: center;
+	gap: 1ch;
+	height: 100%;
+	cursor: pointer;
+	list-style: none;
+	font-size: 0.9375rem;
+	color: var(--fg);
+}
+
+summary::-webkit-details-marker {
+	display: none;
+}
+
+summary::before {
+	content: "[+]" / "";
+	color: var(--acc);
+}
+
+[open] summary::before {
+	content: "[-]" / "";
+}
+
+summary span {
+	margin-left: auto;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: 0.8125rem;
+	color: var(--dim);
+}
+
+details > div {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: calc(100% + 1px);
+	z-index: 6;
+	max-height: calc(100dvh - var(--header-h) - var(--space-6));
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: var(--space-3) 0 var(--space-4);
+	background: var(--bg);
+	border-bottom: 1px solid var(--faint);
+}
+
+@media (min-width: 1001px) and (min-height: 761px) {
+	details {
+		display: none;
+	}
+}
+
+@media print {
+	details {
+		display: none;
+	}
+}
+</style>
+
+<script>
+class ContentsDisclosure extends HTMLElement {
+	connectedCallback() {
+		const toc = this.querySelector("details")!;
+		const now = this.querySelector<HTMLElement>("summary span");
+		const titles = [
+			...this.querySelectorAll<HTMLAnchorElement>("a[data-sec]"),
+		].map((a) => a.querySelector("span")?.textContent ?? "");
+
+		document.addEventListener("reading", (event) => {
+			const { current } =
+				(event as CustomEvent<{ current: number }>).detail;
+
+			if (now) now.textContent = titles[current] ?? "";
+		});
+
+		toc.addEventListener("click", (event) => {
+			if ((event.target as Element).closest("a")) toc.open = false;
+		});
+
+		document.addEventListener("keydown", (event) => {
+			if (event.key !== "Escape" || !toc.open) return;
+
+			toc.open = false;
+			toc.querySelector("summary")?.focus();
+		});
+
+		document.addEventListener("click", (event) => {
+			if (toc.open && !toc.contains(event.target as Node)) {
+				toc.open = false;
+			}
+		});
+
+		toc.addEventListener("focusout", (event) => {
+			if (toc.open && !toc.contains(event.relatedTarget as Node | null)) {
+				toc.open = false;
+			}
+		});
+	}
+}
+
+customElements.define("contents-disclosure", ContentsDisclosure);
+</script>

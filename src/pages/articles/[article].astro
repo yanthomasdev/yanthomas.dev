@@ -1,120 +1,190 @@
 ---
+import ContentsDisclosure from "#components/ContentsDisclosure.astro";
+import ContentsMeters from "#components/ContentsMeters.astro";
+import ReadingProgress from "#components/ReadingProgress.astro";
+import SkipLink from "#components/SkipLink.astro";
 import Base from "#layouts/Base.astro";
-import { getCollection, render } from "astro:content";
-import "#styles/asides.css";
+import Panes from "#layouts/Panes.astro";
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import "#styles/box.css";
+import "#styles/prose.css";
 
 export async function getStaticPaths() {
 	const articles = await getCollection("articles");
 	return articles.map((article) => ({
-		params: {
-			article: article.id,
-		},
+		params: { article: article.id },
 		props: { article },
 	}));
 }
 
+interface Props {
+	article: CollectionEntry<"articles">;
+}
+
 const { article } = Astro.props;
+
 const { Content, headings } = await render(article);
+const minutes = Math.max(
+	1,
+	Math.round((article.body ?? "").trim().split(/\s+/).length / 230),
+);
+const date = article.data.date.toISOString().slice(0, 10);
+
+const h2s = headings.filter((h) => h.depth === 2);
+const sections = h2s.length
+	? [
+		{ href: "#article", text: "Introduction" },
+		...h2s.map((h) => ({ href: `#${h.slug}`, text: h.text })),
+	]
+	: [];
 ---
 
 <Base
 	title={article.data.title}
 	description={article.data.description}
-	id={article.id}
+	ogId={article.id}
+	ogAlt={`“${article.data.title}” in pixel type beside a pixel-art avatar of a white cat in round sunglasses.`}
+	published={article.data.date}
+	type="article"
 >
-	<main id="__page-content">
-		<div class="article-header prose">
-			<p>
-				Published on
-				{Intl.DateTimeFormat("en", { dateStyle: "long" }).format(
-					article.data.date,
-				)}
+	<SkipLink href="#article" label="Skip to the article" />
+	<Panes article leftLabel="title">
+		<Fragment slot="left">
+			<p class="meta">
+				<span><time datetime={date}>{date}</time></span>
+				<span>{minutes} min read</span>
 			</p>
-			<h1>{article.data.title}</h1>
-		</div>
-		<div class="article-container">
-			<div class="flow prose">
-				<Content />
-			</div>
-			<aside>
-				<div class="toc flow">
-					<h2>Table of contents</h2>
-					<nav>
-						<ul>
-							{headings.map(({ text, slug, depth }) => (
-								<li class={`depth-${depth}`}>
-									<a href={`#${slug}`}>{text}</a>
-								</li>
-							))}
-						</ul>
-					</nav>
-				</div>
-			</aside>
-		</div>
-	</main>
+			<h1 id="title">{article.data.title}</h1>
+			<p>{article.data.description}</p>
+			{sections.length > 0 && (
+				<ContentsMeters sections={sections} place="pane" />
+			)}
+		</Fragment>
+
+		{sections.length > 0 && (
+			<ContentsDisclosure slot="bar" sections={sections} />
+		)}
+		<ReadingProgress slot="bar-end" />
+
+		<article
+			id="article"
+			class="prose"
+			tabindex="-1"
+			aria-labelledby="title"
+		>
+			<Content />
+		</article>
+	</Panes>
 </Base>
 
 <style>
-.article-header {
-	width: 100%;
-	max-width: 75ch;
-	margin-bottom: var(--space-m);
-}
-
-.article-header p {
-	font-size: var(--font-size--2);
-	margin-bottom: var(--space-2xs);
-}
-
-.article-container {
+.meta {
+	margin: 0;
 	display: flex;
-	flex-wrap: wrap-reverse;
-	gap: var(--space-l);
-	margin-bottom: var(--space-m);
+	flex-wrap: wrap;
+	gap: 0 3ch;
+	color: var(--dim);
+	font-size: 0.8125rem;
 }
 
-.article-container > :first-child {
-	flex-basis: 0;
-	flex-grow: 999;
-	min-width: min(100%, 65ch);
-	max-width: 75ch;
+h1 {
+	font-family: var(--font-pixel);
+	font-weight: 400;
+	font-size: 3.75rem;
+	line-height: 0.95;
+	letter-spacing: 0;
+	margin: 0;
+	text-wrap: balance;
+	overflow-wrap: break-word;
 }
 
-.article-container > :last-child {
-	flex-grow: 1;
+.meta + h1 {
+	margin-top: calc(var(--space-3) - var(--space-6));
 }
 
-.toc {
-	position: sticky;
-	top: 0;
-	padding-top: var(--space-s);
-	--flow-space: var(--space-2xs);
+h1 + p {
+	margin: 0;
+	max-width: 30em;
+	font-family: var(--font-read);
+	font-size: 1.125rem;
+	line-height: 1.55;
+	color: var(--dim);
 }
 
-.toc h2 {
-	font-size: var(--font-size--1);
+@media (max-width: 1000px) {
+	h1 {
+		font-size: 4.6875rem;
+	}
 }
 
-.toc ul {
-	padding: 0;
-	list-style: none;
-}
-
-.toc a {
-	font-size: var(--font-size--2);
-	color: var(--color-text-dim);
-	text-decoration: none;
-}
-
-.toc a:hover {
-	text-decoration: underline;
-}
-
-.depth-2 {
-	padding-left: var(--space-2xs);
-}
-
-.depth-3 {
-	padding-left: var(--space-m);
+@media (max-width: 600px) {
+	h1 {
+		font-size: 2.8125rem;
+	}
 }
 </style>
+
+<script>
+const prose = document.querySelector<HTMLElement>(".prose");
+if (prose) {
+	const heads = [...prose.querySelectorAll<HTMLElement>(":scope > h2")];
+	let tops: number[] = [], bottom = 0, frame = 0;
+
+	const update = () => {
+		frame = 0;
+
+		const y = window.scrollY,
+			max = document.documentElement.scrollHeight - window.innerHeight;
+		const progress = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+		const line = y + window.innerHeight * 0.4;
+		const end = progress > 0.995;
+
+		let current = 0;
+		const fills = tops.map((top, i) => {
+			if (top < line) current = i;
+
+			const next = tops[i + 1] ?? bottom;
+
+			return end
+				? 1
+				: Math.round(
+					Math.min(
+						1,
+						Math.max(0, (line - top) / Math.max(1, next - top)),
+					) * 8,
+				) / 8;
+		});
+
+		if (end) current = tops.length - 1;
+
+		document.dispatchEvent(
+			new CustomEvent("reading", {
+				detail: { progress, current, fills },
+			}),
+		);
+	};
+
+	const measure = () => {
+		const y = window.scrollY;
+
+		tops = [
+			prose.getBoundingClientRect().top + y,
+			...heads.map((h) => h.getBoundingClientRect().top + y),
+		];
+		bottom = prose.getBoundingClientRect().bottom + y;
+
+		update();
+	};
+
+	window.addEventListener("scroll", () => {
+		if (!frame) frame = requestAnimationFrame(update);
+	}, { passive: true });
+
+	window.addEventListener("resize", measure);
+	window.addEventListener("load", measure);
+	document.fonts?.ready.then(measure);
+	new ResizeObserver(measure).observe(prose);
+
+	measure();
+}
+</script>

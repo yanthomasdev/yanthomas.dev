@@ -1,0 +1,104 @@
+<sprite-avatar>
+	<button
+		type="button"
+		inert
+		title="Say hi"
+		aria-label="My avatar, a white cat in round sunglasses, drawn as pixel art. Activate to make it wave."
+	>
+		<img src="/sprite.svg" alt="" width="48" height="48" />
+		<img
+			class="wave"
+			src="/sprite-wave.svg"
+			alt=""
+			width="48"
+			height="48"
+		/>
+		<img
+			class="glint"
+			src="/sprite-glint.svg"
+			alt=""
+			width="48"
+			height="48"
+		/>
+	</button>
+</sprite-avatar>
+
+<style>
+sprite-avatar {
+	display: contents;
+}
+
+button {
+	position: relative;
+	flex: 0 0 auto;
+	display: block;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+img {
+	display: block;
+	width: var(--avatar, 192px);
+	height: var(--avatar, 192px);
+	image-rendering: crisp-edges;
+	image-rendering: pixelated;
+}
+
+.wave, .glint {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.wave {
+	opacity: 0;
+}
+
+.waving .wave {
+	animation: wave 440ms steps(1, end);
+}
+
+@keyframes wave {
+	0%, 50% {
+		opacity: 1;
+	}
+
+	25%, 75%, 100% {
+		opacity: 0;
+	}
+}
+
+@media print {
+	button {
+		display: none;
+	}
+}
+</style>
+
+<script>
+class SpriteAvatar extends HTMLElement {
+	connectedCallback() {
+		const button = this.querySelector("button")!;
+		button.inert = false;
+
+		const wave = () => button.classList.add("waving");
+		button.addEventListener(
+			"animationend",
+			() => button.classList.remove("waving"),
+		);
+		button.addEventListener("click", wave);
+
+		if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+		setTimeout(wave, 2600);
+		if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+			button.addEventListener("mouseenter", wave);
+		}
+	}
+}
+
+customElements.define("sprite-avatar", SpriteAvatar);
+</script>

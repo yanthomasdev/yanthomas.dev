@@ -1,0 +1,172 @@
+---
+interface Props {
+	sections: { href: string; text: string }[];
+	place: "pane" | "panel";
+}
+
+const { sections, place } = Astro.props;
+---
+
+<contents-meters>
+	<nav class={place} aria-label="Contents">
+		<ul>
+			{sections.map((section, i) => (
+				<li>
+					<a
+						href={section.href}
+						data-sec={i}
+						aria-current={i === 0 ? "location" : undefined}
+					>
+						<span>{section.text}</span>
+						<span
+							aria-hidden="true"
+						>{Array.from({ length: 8 }, () => <b />)}</span>
+					</a>
+				</li>
+			))}
+		</ul>
+	</nav>
+</contents-meters>
+
+<style>
+contents-meters {
+	display: contents;
+}
+
+nav {
+	font-size: 0.8125rem;
+}
+
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+a {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 2ch;
+	align-items: center;
+	padding: 2px 0;
+	color: var(--dim);
+	text-decoration: none;
+}
+
+a > span:first-child {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+a[aria-current="location"] {
+	color: var(--fg);
+	font-weight: 500;
+}
+
+a > span:last-child {
+	display: flex;
+	gap: 2px;
+}
+
+b {
+	width: 5px;
+	height: 9px;
+	background: var(--faint);
+}
+
+b.on {
+	background: var(--dim);
+}
+
+a[aria-current="location"] b.on, a.done b.on {
+	background: var(--acc);
+}
+
+.pane {
+	margin-top: var(--space-4);
+}
+
+.panel a {
+	align-items: start;
+}
+
+.panel a > span:first-child {
+	white-space: normal;
+}
+
+.panel a > span:last-child {
+	margin-top: 0.45em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	a:hover {
+		background: transparent;
+		color: var(--fg);
+	}
+}
+
+@media (max-width: 1000px) {
+	.pane {
+		display: none;
+	}
+}
+
+@media print {
+	nav {
+		display: none;
+	}
+}
+
+@media (forced-colors: active) {
+	b {
+		background: Canvas;
+		box-shadow: inset 0 0 0 1px CanvasText;
+		forced-color-adjust: none;
+	}
+
+	b.on, a[aria-current="location"] b.on, a.done b.on {
+		background: CanvasText;
+	}
+}
+</style>
+
+<script>
+class ContentsMeters extends HTMLElement {
+	connectedCallback() {
+		const links = [
+			...this.querySelectorAll<HTMLAnchorElement>("a[data-sec]"),
+		];
+		let last = "";
+
+		document.addEventListener("reading", (event) => {
+			const { current, fills } =
+				(event as CustomEvent<{ current: number; fills: number[] }>)
+					.detail;
+
+			const key = `${current}|${fills.join(",")}`;
+			if (key === last) return;
+
+			last = key;
+
+			for (const a of links) {
+				const i = Number(a.dataset.sec),
+					n = Math.round((fills[i] ?? 0) * 8);
+
+				if (i === current) a.setAttribute("aria-current", "location");
+				else a.removeAttribute("aria-current");
+
+				a.classList.toggle("done", (fills[i] ?? 0) >= 1);
+				a.querySelectorAll("b").forEach((b, k) =>
+					b.classList.toggle("on", k < n)
+				);
+			}
+		});
+	}
+}
+
+customElements.define("contents-meters", ContentsMeters);
+</script>

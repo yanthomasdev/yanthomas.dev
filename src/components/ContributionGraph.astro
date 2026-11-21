@@ -1,0 +1,122 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+type Props = CollectionEntry<"contributions">["data"];
+
+const { total, days } = Astro.props;
+
+// One string: as JSX, every <rect> would carry the scoping attribute (about 9 kB).
+const cells = days.map((d) =>
+	`<rect x="${d.col * 5}" y="${
+		d.row * 5
+	}" width="4" height="4" class="l${d.level}" data-d="${d.date}" data-n="${d.count}"/>`
+).join("");
+---
+
+<contribution-graph>
+	<figure>
+		<svg viewBox="0 0 264 34" aria-hidden="true" set:html={cells} />
+		<figcaption>
+			{total.toLocaleString("en-US")} contributions this year
+		</figcaption>
+	</figure>
+</contribution-graph>
+
+<style>
+contribution-graph {
+	display: contents;
+}
+
+figure {
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+svg {
+	display: block;
+	width: 100%;
+	max-width: 264px;
+	height: auto;
+	shape-rendering: crispEdges;
+	overflow: visible;
+}
+
+svg :global(rect) {
+	fill: var(--lv0);
+}
+
+svg :global(rect.l1) {
+	fill: var(--lv1);
+}
+
+svg :global(rect.l2) {
+	fill: var(--lv2);
+}
+
+svg :global(rect.l3) {
+	fill: var(--lv3);
+}
+
+svg :global(rect.l4) {
+	fill: var(--lv4);
+}
+
+svg :global(rect.on) {
+	fill: var(--bg);
+	stroke: var(--fg);
+	stroke-width: 1;
+}
+
+figcaption {
+	font-size: 0.8125rem;
+	line-height: 1.0625rem;
+	color: var(--dim);
+}
+
+@media print {
+	figure {
+		display: none;
+	}
+}
+</style>
+
+<script>
+class ContributionGraph extends HTMLElement {
+	connectedCallback() {
+		if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+		const svg = this.querySelector("svg");
+		const caption = this.querySelector("figcaption");
+		if (!svg || !caption) return;
+
+		const original = caption.innerHTML;
+		let on: Element | null = null;
+
+		svg.addEventListener("pointerover", (event) => {
+			const rect = (event.target as Element).closest("rect[data-d]");
+			if (!rect || rect === on || event.pointerType !== "mouse") return;
+
+			on?.classList.remove("on");
+			rect.classList.add("on");
+			on = rect;
+
+			const n = Number(rect.getAttribute("data-n"));
+			caption.textContent = `${rect.getAttribute("data-d")}: ${
+				n === 1
+					? "1 contribution"
+					: `${n.toLocaleString("en-US")} contributions`
+			}`;
+		});
+
+		svg.addEventListener("pointerleave", () => {
+			on?.classList.remove("on");
+			on = null;
+			caption.innerHTML = original;
+		});
+	}
+}
+
+customElements.define("contribution-graph", ContributionGraph);
+</script>

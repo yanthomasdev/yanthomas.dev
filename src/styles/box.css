@@ -1,0 +1,96 @@
+.box {
+	--c: var(--acc);
+	position: relative;
+	margin: 0.4em 0;
+	border: 1px solid var(--faint);
+	font-family: var(--font-read);
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	color: var(--text);
+}
+
+.box--tip {
+	--c: var(--tip);
+}
+
+.box--caution {
+	--c: var(--caution);
+}
+
+.box--danger {
+	--c: var(--danger);
+}
+
+.box-bar {
+	display: flex;
+	min-height: 1.375rem;
+	align-items: stretch;
+}
+
+.box-label {
+	min-width: 0;
+	background: var(--c);
+	color: var(--bg);
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	line-height: 1.375rem;
+	padding: 0 10px;
+	font-weight: 500;
+	overflow-wrap: anywhere;
+}
+
+.box-bar i {
+	flex: 0 0 40px;
+	background: var(--c);
+	-webkit-mask: var(--dither-50) 0 0 / 8px 8px repeat;
+	mask: var(--dither-50) 0 0 / 8px 8px repeat;
+}
+
+.box-bar i + i {
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='0' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='6' y='4' width='2' height='2'/%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='0' width='2' height='2'/%3E%3Crect x='2' y='4' width='2' height='2'/%3E%3Crect x='6' y='4' width='2' height='2'/%3E%3C/svg%3E");
+}
+
+.box-bar i + i + i {
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3C/svg%3E");
+}
+
+.box-body {
+	padding: 14px 20px 16px;
+}
+
+.box-body > :first-child {
+	margin-top: 0;
+}
+
+.box-body > :last-child {
+	margin-bottom: 0;
+}
+
+.box--reach {
+	max-width: 30em;
+	margin: 0;
+	font-size: 1rem;
+	line-height: 1.55;
+}
+
+@media print {
+	.box-bar i {
+		display: none;
+	}
+
+	.box-label {
+		background: none !important;
+		color: #000 !important;
+		border: 1px solid #000;
+	}
+}
+
+@media (forced-colors: active) {
+	.box-label {
+		background: CanvasText;
+		color: Canvas;
+		forced-color-adjust: none;
+	}
+}

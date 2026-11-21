@@ -1,0 +1,100 @@
+<theme-switcher>
+	<button type="button" role="switch" aria-checked="false">
+		<span>dark</span><span class="knob" aria-hidden="true">[█ ]</span><span
+		>light</span>
+	</button>
+	<script is:inline>
+	(function(b) {
+		if (document.documentElement.dataset.theme !== "light") return;
+		b.setAttribute("aria-checked", "true");
+		b.children[1].textContent = "[ █]";
+	})(document.currentScript.previousElementSibling);
+	</script>
+</theme-switcher>
+
+<style>
+theme-switcher {
+	display: contents;
+}
+
+button {
+	display: inline-flex;
+	align-items: center;
+	gap: 1ch;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	color: var(--dim);
+	cursor: pointer;
+	padding: 10px 0;
+	white-space: nowrap;
+}
+
+span:first-child {
+	color: var(--fg);
+}
+
+.knob {
+	white-space: pre;
+	color: var(--acc);
+	font-family: ui-monospace, monospace;
+}
+
+[aria-checked="true"] span:first-child {
+	color: var(--dim);
+}
+
+[aria-checked="true"] span:last-child {
+	color: var(--fg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	button:hover {
+		color: var(--fg);
+	}
+}
+
+@media (scripting: none) {
+	button {
+		display: none;
+	}
+}
+
+@media print {
+	button {
+		display: none;
+	}
+}
+</style>
+
+<script>
+const root = document.documentElement;
+
+class ThemeSwitcher extends HTMLElement {
+	connectedCallback() {
+		this.querySelector("button")?.addEventListener("click", () => {
+			const light = root.dataset.theme !== "light";
+			root.dataset.theme = light ? "light" : "dark";
+
+			try {
+				localStorage.setItem("theme", root.dataset.theme);
+			} catch {}
+
+			document.querySelectorAll<HTMLMetaElement>(
+				"meta[name=\"theme-color\"]",
+			).forEach((meta) => {
+				meta.content = light ? "#f6f6f3" : "#0a0a0a";
+			});
+
+			document.querySelectorAll("theme-switcher button").forEach(
+				(button) => {
+					button.setAttribute("aria-checked", String(light));
+					button.children[1]!.textContent = light ? "[ █]" : "[█ ]";
+				},
+			);
+		});
+	}
+}
+
+customElements.define("theme-switcher", ThemeSwitcher);
+</script>

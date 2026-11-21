@@ -1,0 +1,45 @@
+---
+import ThemeSwitcher from "#components/ThemeSwitcher.astro";
+
+interface Props {
+	always?: boolean;
+}
+
+const { always = false } = Astro.props;
+---
+
+<footer class:list={{ always }}>
+	<ThemeSwitcher />
+</footer>
+
+<style>
+footer {
+	display: none;
+	justify-content: flex-end;
+	align-items: center;
+	gap: var(--space-6);
+	min-height: var(--header-h);
+	border-top: 1px solid var(--faint);
+}
+
+.always {
+	display: flex;
+}
+
+@media (max-width: 1000px) {
+	footer {
+		display: flex;
+		margin-bottom: var(--space-8);
+	}
+
+	.always {
+		margin-bottom: 0;
+	}
+}
+
+@media print {
+	footer {
+		display: none;
+	}
+}
+</style>
