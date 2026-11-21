@@ -1,163 +1,124 @@
 ---
 import "#styles/reset.css";
-import "#styles/global.css";
-import spaceMonoWoff2 from "@fontsource/space-mono/files/space-mono-latin-400-normal.woff2?url";
+import "#styles/tokens.css";
+import "#styles/base.css";
+import { Font } from "astro:assets";
 
 interface Props {
-	title: string;
+	title?: string;
 	description: string;
-	id: string;
+	ogId: string;
+	type?: "website" | "article";
+	ogAlt: string;
+	published?: Date;
+	noCanonical?: boolean;
+	lang?: string;
 }
 
-const pages: Record<string, string> = {
-	Home: "/",
-	Articles: "/articles/",
-};
+const {
+	title,
+	description,
+	ogId,
+	ogAlt,
+	published,
+	noCanonical = false,
+	type = "website",
+	lang = "en",
+} = Astro.props;
 
-const links: Record<string, string> = {
-	GitHub: "https://github.com/yanthomasdev",
-	Bluesky: "https://bsky.app/profile/yanthomas.dev",
-};
-
-const { title, description, id } = Astro.props;
+const fullTitle = title ? `${title} | Yan Thomas` : "Yan Thomas";
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(`/og/${ogId}.png`, Astro.site);
 ---
 
-<html lang="en">
+<html lang={lang} data-theme="dark">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="sitemap" href="/sitemap-index.xml" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{fullTitle}</title>
 		<meta name="description" content={description} />
-		<meta property="og:title" content={title} />
-		<meta name="og:description" content={description} />
-		<meta
-			property="og:type"
-			content={Astro.url.pathname.match(/^\/articles\/.+/)
-			? "article"
-			: "website"}
-		/>
-		<meta property="og:url" content={Astro.url.href} />
-		<meta
-			property="og:image"
-			content={new URL(`/og/${id}.png/`, Astro.url)}
-		/>
-		<meta property="og:locale" content="en" />
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta
-			property="twitter:image"
-			content={new URL(`/og/${id}.png/`, Astro.url)}
-		/>
-		<meta name="twitter:site" content="yanthomasdev" />
+		{!noCanonical && <link rel="canonical" href={canonical} />}
+		<link rel="sitemap" href="/sitemap-index.xml" />
 		<link
-			rel="preload"
-			as="font"
-			type="font/woff2"
-			href={spaceMonoWoff2}
-			crossorigin="anonymous"
+			rel="alternate"
+			type="application/rss+xml"
+			title="Yan Thomas"
+			href="/rss.xml"
 		/>
-		<script defer src="https://assets.onedollarstats.com/stonks.js">
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta
+			name="theme-color"
+			content="#0a0a0a"
+			media="(prefers-color-scheme: dark)"
+		/>
+		<meta
+			name="theme-color"
+			content="#f6f6f3"
+			media="(prefers-color-scheme: light)"
+		/>
+		<meta name="generator" content={Astro.generator} />
+		<meta property="og:title" content={title ?? "Yan Thomas"} />
+		<meta property="og:description" content={description} />
+		<meta property="og:type" content={type} />
+		{!noCanonical && <meta property="og:url" content={canonical} />}
+		<meta property="og:site_name" content="Yan Thomas" />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={ogAlt} />
+		<meta property="og:locale" content="en_US" />
+		{published && (
+			<meta
+				property="article:published_time"
+				content={published.toISOString()}
+			/>
+		)}
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:image" content={ogImage} />
+		<meta name="twitter:image:alt" content={ogAlt} />
+		<meta name="twitter:site" content="@yanthomasdev" />
+		<Font
+			cssVariable="--font-read"
+			preload={[{ weight: 400, style: "normal" }]}
+		/>
+		<Font
+			cssVariable="--font-mono"
+			preload={[{ weight: 400, style: "normal" }]}
+		/>
+		<Font cssVariable="--font-pixel" preload />
+		<script is:inline>
+		{
+			const root = document.documentElement;
+
+			let saved = null;
+			try {
+				saved = localStorage.getItem("theme");
+			} catch {}
+
+			const theme = saved === "light" || saved === "dark"
+				? saved
+				: matchMedia("(prefers-color-scheme: light)").matches
+				? "light"
+				: "dark";
+
+			root.dataset.theme = theme;
+
+			document.querySelectorAll("meta[name=\"theme-color\"]").forEach(
+				(m) => {
+					m.content = theme === "light" ? "#f6f6f3" : "#0a0a0a";
+				},
+			);
+		}
 		</script>
-		<title>{title}</title>
+		<script
+			is:inline
+			defer
+			src="https://assets.onedollarstats.com/stonks.js"
+		>
+		</script>
 	</head>
 	<body>
-		<a class="skip-to-content" href="#__page-content"> Skip to content </a>
-		<header>
-			<nav aria-label="Main">
-				<ul>
-					{Object.entries(pages).map(([name, path]) => (
-						<li>
-							<a
-								href={path}
-								aria-current={path === Astro.url.pathname ? "page" : "false"}
-							>
-								<span class="sr-only">{name}</span>
-								<span aria-hidden="true">[ {name} ]</span>
-							</a>
-						</li>
-					))}
-				</ul>
-			</nav>
-			<nav aria-label="Social">
-				<ul>
-					{Object.entries(links).map(([name, url]) => (
-						<li>
-							<a href={url}>
-								<span class="sr-only">{name}</span>
-								<span aria-hidden="true">[ {name} ]</span>
-							</a>
-						</li>
-					))}
-				</ul>
-			</nav>
-		</header>
 		<slot />
 	</body>
 </html>
-
-<style>
-@view-transition {
-	navigation: auto;
-}
-
-html,
-body {
-	min-height: 100%;
-	scrollbar-gutter: stable;
-}
-
-body {
-	max-width: 72rem;
-	margin-inline: auto;
-}
-
-header,
-nav,
-nav ul {
-	display: flex;
-	flex-direction: row;
-}
-
-header {
-	flex-wrap: wrap;
-	justify-content: space-between;
-	margin-bottom: var(--space-m);
-}
-
-nav ul {
-	column-gap: var(--space-xs);
-	flex-wrap: wrap;
-	list-style: none;
-	padding: 0;
-}
-
-nav li {
-	margin-bottom: var(--space-xs);
-}
-
-nav a {
-	text-wrap: nowrap;
-	text-decoration: none;
-}
-
-nav a[aria-current="page"] {
-	font-weight: bold;
-}
-
-.skip-to-content {
-	position: absolute;
-	left: -9999px;
-	z-index: 999;
-	padding: var(--space-s);
-	background-color: var(--color-background);
-	opacity: 0;
-}
-
-.skip-to-content:focus {
-	left: 50%;
-	transform: translateX(-50%);
-	opacity: 1;
-	outline-color: var(--color-links);
-}
-</style>

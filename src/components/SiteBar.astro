@@ -1,0 +1,100 @@
+---
+import Bar from "#components/Bar.astro";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	links: readonly {
+		name: string;
+		href: string;
+		icon: "github" | "bluesky" | "x";
+	}[];
+	home?: boolean;
+}
+
+const { links, home = false } = Astro.props;
+---
+
+<Bar side="left" tag="header">
+	{home ? <span class="wordmark">yanthomas.dev</span> : (
+		 <a class="wordmark" href="/">yanthomas.dev</a>
+	 )}
+	<nav aria-label="Elsewhere">
+		<ul>
+			{links.map((link) => (
+				<li>
+					<a
+						href={link.href}
+						aria-label={link.name}
+						title={link.name}
+					><Icon
+							name={`pixel:${link.icon}`}
+							size={24}
+							aria-hidden="true"
+						/></a>
+				</li>
+			))}
+		</ul>
+	</nav>
+</Bar>
+
+<style>
+.wordmark {
+	font-family: var(--font-pixel);
+	font-weight: 400;
+	font-size: 1.875rem;
+	line-height: 1;
+	text-decoration: none;
+	color: var(--fg);
+}
+
+ul {
+	display: flex;
+	gap: 4px;
+	margin: 0 -8px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+nav a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	color: var(--fg);
+	text-decoration: none;
+}
+
+nav :global(svg) {
+	display: block;
+	width: 24px;
+	height: 24px;
+	shape-rendering: crispEdges;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	a.wordmark:hover {
+		color: var(--bg);
+	}
+
+	nav a:hover {
+		background: var(--fg);
+		color: var(--bg);
+	}
+}
+
+@media (max-width: 400px) {
+	.wordmark {
+		font-size: 1.5rem;
+	}
+
+	ul {
+		gap: 0;
+		margin-right: -4px;
+	}
+
+	nav a {
+		width: 32px;
+	}
+}
+</style>

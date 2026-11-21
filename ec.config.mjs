@@ -1,0 +1,80 @@
+import { defineEcConfig, ExpressiveCodeTheme } from "astro-expressive-code";
+
+const tokenColors = [
+	{ settings: { foreground: "var(--fg)" } },
+	{ scope: ["comment", "punctuation", "meta.brace", "keyword.operator"], settings: { foreground: "var(--dim)" } },
+	{
+		scope: ["keyword", "storage", "constant", "variable.language", "support.constant", "entity.name.tag"],
+		settings: { foreground: "var(--acc)" },
+	},
+	{
+		scope: ["string", "punctuation.definition.string", "markup.inline.raw"],
+		settings: { foreground: "var(--acc2)" },
+	},
+	{ scope: ["markup.underline.link"], settings: { foreground: "var(--acc)" } },
+];
+
+export default defineEcConfig({
+	themes: [
+		new ExpressiveCodeTheme({
+			name: "dark",
+			type: "dark",
+			colors: { "editor.background": "#121212", "editor.foreground": "#ededed" },
+			tokenColors,
+		}),
+		new ExpressiveCodeTheme({
+			name: "light",
+			type: "light",
+			colors: { "editor.background": "#eeeeea", "editor.foreground": "#111111" },
+			tokenColors,
+		}),
+	],
+	useDarkModeMediaQuery: false,
+	minSyntaxHighlightingColorContrast: 0,
+	emitExternalStylesheet: false,
+	defaultProps: { frame: "code" },
+	styleOverrides: {
+		borderRadius: "0",
+		borderColor: "var(--faint)",
+		codeBackground: "var(--surface)",
+		codeForeground: "var(--fg)",
+		codeFontFamily: "var(--font-mono)",
+		codeFontSize: "0.9375rem",
+		codeLineHeight: "1.6",
+		codePaddingBlock: "14px",
+		codePaddingInline: "14px",
+		codeSelectionBackground: "color-mix(in srgb, var(--acc) 30%, transparent)",
+		uiFontFamily: "var(--font-mono)",
+		uiFontSize: "0.8125rem",
+		uiPaddingBlock: "6px",
+		uiPaddingInline: "14px",
+		focusBorder: "var(--acc)",
+		frames: {
+			frameBoxShadowCssValue: "none",
+			editorTabBarBackground: "var(--surface)",
+			editorTabBarBorderBottomColor: "var(--faint)",
+			editorActiveTabBackground: "var(--surface)",
+			editorActiveTabForeground: "var(--dim)",
+			editorActiveTabBorderColor: "transparent",
+			editorActiveTabIndicatorTopColor: "transparent",
+			editorActiveTabIndicatorBottomColor: "var(--faint)",
+			editorTabBorderRadius: "0",
+			inlineButtonBackground: "var(--surface)",
+			inlineButtonForeground: "var(--dim)",
+			inlineButtonBorder: "var(--faint)",
+			tooltipSuccessBackground: "var(--acc)",
+			tooltipSuccessForeground: "var(--bg)",
+		},
+		textMarkers: {
+			lineMarkerAccentWidth: "2px",
+			markBackground: "color-mix(in srgb, var(--fg) 3%, var(--surface))",
+			markBorderColor: "var(--acc)",
+			insBackground: "transparent",
+			insBorderColor: "var(--tip)",
+			insDiffIndicatorColor: "var(--tip)",
+			delBackground: "transparent",
+			delBorderColor: "var(--danger)",
+			delDiffIndicatorColor: "var(--danger)",
+		},
+	},
+});

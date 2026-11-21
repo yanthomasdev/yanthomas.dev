@@ -1,94 +1,214 @@
 import type { APIRoute } from "astro";
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { join } from "node:path";
 import { satoriAstroOG } from "satori-astro";
 import { html } from "satori-html";
 
 const require = createRequire(import.meta.url);
 
-const spaceMonoNormal = require.resolve("@fontsource/space-mono/files/space-mono-latin-400-normal.woff");
-const spaceMonoBold = require.resolve("@fontsource/space-mono/files/space-mono-latin-700-normal.woff");
-
-const entries = await getCollection("articles");
-const articles = Object.fromEntries(entries.map(({ id, data }) => [id, data]));
-
-const pages = {
-	"home": {
-		title: "Yan | Home",
-		description: "Your friendly neighborhood open-source developer.",
-		date: null,
-	},
-	"articles": {
-		title: "Yan | Articles",
-		description: "Archive of all my published articles.",
-		date: null,
-	},
-	"404": {
-		title: "Yan | 404",
-		description: "This page does not exist. Are you lost?",
-		date: null,
-	},
-	...articles,
-} as const;
-
-const fonts = [
-	{
-		name: "Space Mono",
-		data: await readFile(spaceMonoNormal),
+const fonts = await Promise.all(
+	([
+		["Atkinson Hyperlegible Mono", 400, "atkinson-hyperlegible-mono"],
+		["Atkinson Hyperlegible Mono", 500, "atkinson-hyperlegible-mono"],
+		["Atkinson Hyperlegible Next", 400, "atkinson-hyperlegible-next"],
+		["Jersey 15", 400, "jersey-15"],
+	] as const).map(async ([name, weight, pkg]) => ({
+		name,
+		weight,
 		style: "normal" as const,
-		weight: 400 as const,
-	},
-	{
-		name: "Space Mono",
-		data: await readFile(spaceMonoBold),
-		style: "normal" as const,
-		weight: 700 as const,
-	},
+		data: await readFile(require.resolve(`@fontsource/${pkg}/files/${pkg}-latin-${weight}-normal.woff`)),
+	})),
+);
+
+const C = { bg: "#0A0A0A", fg: "#EDEDED", dim: "#8F8F8F", faint: "#2E2E2E", acc: "#6FB7D1" };
+const LEVELS = ["#16232A", "#1F4656", "#2F6F87", "#4E9AB6", "#8FD0E6"];
+
+const svgUri = (svg: string) => `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+const fileUri = async (path: string) => svgUri(await readFile(join(process.cwd(), path), "utf-8"));
+
+const sprite = await fileUri("public/sprite.svg");
+const spriteGray = await fileUri("public/sprite-gray.svg");
+
+const STEPS = [
+	[[0, 0], [8, 0], [4, 4], [12, 4], [0, 8], [8, 8], [4, 12], [12, 12]],
+	[[0, 0], [8, 0], [4, 8], [12, 8]],
+	[[0, 0], [8, 8]],
 ];
 
-export const GET: APIRoute = async ({ props, url }) => {
+const rects: string[] = [];
+STEPS.forEach((cells, s) => {
+	for (let tx = 0; tx < 96; tx += 16) {
+		for (let ty = 0; ty < 48; ty += 16) {
+			for (const [x, y] of cells) {
+				rects.push(`<rect x="${s * 96 + tx + x!}" y="${ty + y!}" width="4" height="4"/>`);
+			}
+		}
+	}
+});
+
+const dither = svgUri(
+	`<svg xmlns="http://www.w3.org/2000/svg" width="288" height="48" shape-rendering="crispEdges" fill="${C.acc}">${
+		rects.join("")
+	}</svg>`,
+);
+
+const escape = (text: string) =>
+	text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const frame = (inner: string) => `
+	<div style="display: flex; position: relative; width: 1200px; height: 630px; background-color: ${C.bg}; color: ${C.fg}; font-family: 'Atkinson Hyperlegible Mono';">
+		${inner}
+		<div style="display: flex; position: absolute; left: 0; right: 0; bottom: 0; height: 48px;">
+			<div style="display: flex; width: 456px; height: 48px; background-color: ${C.acc};"></div>
+			<img src="${dither}" style="width: 288px; height: 48px;" />
+		</div>
+	</div>`;
+
+type Props =
+	| { kind: "article"; title: string; meta: string; description: string }
+	| { kind: "home"; total: number | null; graph: string | null }
+	| { kind: "notfound" };
+
+const TITLE_WIDTH = 608;
+
+function titleLines(title: string, size: number) {
+	const perLine = Math.floor(TITLE_WIDTH / (size * 0.4));
+	let lines = 1, used = 0;
+
+	for (const word of title.split(/\s+/)) {
+		const need = used ? used + 1 + word.length : word.length;
+		if (need > perLine && used) {
+			lines++;
+			used = word.length;
+		} else used = need;
+	}
+
+	return lines;
+}
+
+function clip(text: string, max = 150) {
+	if (text.length <= max) return text;
+
+	const cut = text.slice(0, max);
+	return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.\s]+$/, "")}…`;
+}
+
+function article({ title, meta, description }: { title: string; meta: string; description: string }) {
+	const size = titleLines(title, 60) <= 3 ? 60 : 45;
+
+	return frame(`
+		<img src="${sprite}" style="position: absolute; left: 72px; top: 99px; width: 384px; height: 384px;" />
+		<div style="display: flex; flex-direction: column; justify-content: center; position: absolute; left: 520px; width: ${TITLE_WIDTH}px; top: 99px; height: 384px;">
+			<span style="font-size: 22px; line-height: 28px; color: ${C.dim}; white-space: pre;">${escape(meta)}</span>
+			<h1 style="margin: 16px 0 0; font-family: 'Jersey 15'; font-weight: 400; font-size: ${size}px; line-height: 0.95; text-wrap: balance;">${
+				escape(title)
+			}</h1>
+			<p style="margin: 24px 0 0; font-family: 'Atkinson Hyperlegible Next'; font-size: 24px; line-height: 1.4; color: ${C.dim};">${
+				escape(clip(description))
+			}</p>
+		</div>`);
+}
+
+function card(image: string, text: string, center = false, size = 336) {
+	return frame(`
+		<div style="display: flex; align-items: center;${
+			center ? " justify-content: center; left: 0; right: 0;" : " left: 72px; right: 72px;"
+		} position: absolute; top: 0; bottom: 48px;">
+			<div style="display: flex; height: ${size}px;">
+				<img src="${image}" style="width: ${size}px; height: ${size}px;" />
+				<div style="display: flex; flex-direction: column; justify-content: space-between; height: ${size}px; margin-left: 48px;">${text}</div>
+			</div>
+		</div>`);
+}
+
+function home({ total, graph }: { total: number | null; graph: string | null }) {
+	const name =
+		`<div style="display: flex; flex-direction: column; margin-top: -8px; font-family: 'Jersey 15'; font-size: 150px; line-height: 100px;">
+			<span>YAN</span>
+			<span>THOMAS</span>
+		</div>`;
+
+	const below = graph && total !== null
+		? `<div style="display: flex; flex-direction: column; margin-bottom: -3px;">
+				<img src="${graph}" style="width: 530px; height: 70px;" />
+				<span style="margin-top: 12px; font-size: 22px; line-height: 28px; color: ${C.dim};">${
+					total.toLocaleString("en-US")
+				} contributions this year</span>
+			</div>`
+		: "";
+
+	return card(sprite, name + below);
+}
+
+const NOT_FOUND = 288;
+
+function notFound() {
+	return card(
+		spriteGray,
+		`<span style="display: flex; align-items: center; height: ${NOT_FOUND}px; font-family: 'Jersey 15'; font-size: 432px; line-height: ${NOT_FOUND}px;">404</span>`,
+		true,
+		NOT_FOUND,
+	);
+}
+
+async function graphImage(): Promise<{ total: number | null; graph: string | null }> {
+	const data = (await getEntry("contributions", "calendar"))?.data;
+	if (!data) return { total: null, graph: null };
+
+	const cells = data.days.map((d) =>
+		`<rect x="${d.col * 10}" y="${d.row * 10}" width="8" height="8" fill="${LEVELS[d.level]}"/>`
+	).join("");
+
+	return {
+		total: data.total,
+		graph: svgUri(
+			`<svg xmlns="http://www.w3.org/2000/svg" width="530" height="70" shape-rendering="crispEdges">${cells}</svg>`,
+		),
+	};
+}
+
+export async function getStaticPaths() {
+	const articles = await getCollection("articles");
+
+	const pages: [string, Props][] = [
+		["home", { kind: "home", ...(await graphImage()) }],
+		["404", { kind: "notfound" }],
+	];
+
+	return [
+		...pages.map(([id, props]) => ({ params: { id }, props })),
+		...articles.map((a) => ({
+			params: { id: a.id },
+			props: {
+				kind: "article",
+				title: a.data.title,
+				meta: `${a.data.date.toISOString().slice(0, 10)}   ${
+					Math.max(1, Math.round((a.body ?? "").trim().split(/\s+/).length / 230))
+				} min read`,
+				description: a.data.description,
+			} as Props,
+		})),
+	];
+}
+
+export const GET: APIRoute = async ({ props }) => {
+	const p = props as Props;
+	const markup = p.kind === "home"
+		? home(p)
+		: p.kind === "notfound"
+		? notFound()
+		: article(p);
+
 	return await satoriAstroOG({
-		template: html`
-                <div style="display: flex; background-color: #1E1E2E; font-family: 'Space Mono'; color: #BAC2DE; height: 100%; padding: 12px;">
-                    <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1; padding-right: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 420 62" height="42">
-                            <path
-                                fill="#BAC2DE"
-                                d="M153 .6h6v1.3h-6V.6Zm29.4 0h5.9v1.3h-5.9V.6ZM6.1 12.6H12v1.3H6v-1.3Zm29.4 0h5.9v1.3h-6v-1.3Zm22 0h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3H65v-1.3Zm14.7 0h5.8v1.3h-5.8v-1.3Zm14.7 0h5.8v1.3h-5.8v-1.3Zm14.6 0h6v1.3h-6v-1.3Zm7.4 0h5.9v1.3h-6v-1.3Zm33 1.3H148V1.7h1.4V14Zm14.7 0h-1.4V1.7h1.4V14Zm3.7-1.3h6v1.3h-6v-1.3Zm11 1.3h-1.4V1.7h1.4V14Zm14.7 0H192V1.7h1.4V14Zm3.7-1.3h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3h-5.8v-1.3Zm29.4 0h5.8v1.3H234v-1.3Zm7.3 0h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3h-5.8v-1.3Zm22 0h5.9v1.3h-5.9v-1.3Zm14.7 0h5.9v1.3h-6v-1.3Zm7.3 0h6v1.3h-6v-1.3Zm14.7 0h6v1.3h-6v-1.3Zm7.4 0h5.9v1.3h-6v-1.3Zm7.3 0h6v1.3h-6v-1.3Zm29.4 0h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3h-5.8v-1.3Zm14.7 0h5.8v1.3h-5.8v-1.3Zm14.7 0h5.8v1.3h-5.8v-1.3Zm7.3 0h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3H403v-1.3ZM2.4 25.9H1V13.7h1.4V26Zm14.7 0h-1.5V13.7h1.5V26Zm14.7 0h-1.5V13.7h1.5V26Zm14.7 0H45V13.7h1.5V26ZM54.2 14l1.4.4-3.6 11-1.4-.4 3.6-11ZM65 24.6h5.8v1.3H65v-1.3Zm11.3-7.4H75l-1-1.7h1.6l.6 1.7Zm14.4 8.7H89V13.7h1.5V26Zm13.5-8.3c-.2 0-.4-.2-.5-.4a1.2 1.2 0 0 1-.1-1l.2-.4.4-.3a1 1 0 0 1 .9 0l.3.3.3.3v.5l-.1.6-.5.4v1.5h-1v-1.5Zm4.8 7h6v1.3h-6v-1.3Zm20.2.5-1.4.4-3.6-11 1.4-.4 3.6 11Zm20.2.8H148V13.7h1.4V26Zm11-1.3h6v1.3h-6v-1.3Zm7.4 0h6v1.3h-6v-1.3Zm11 1.3h-1.4V13.7h1.4V26Zm13.5-8.3c-.2 0-.3-.2-.4-.4a1.2 1.2 0 0 1-.1-1l.2-.4.4-.3a1 1 0 0 1 .8 0c.2 0 .3.2.4.3l.2.3.1.5c0 .2 0 .4-.2.6 0 .2-.2.3-.4.4v1.5h-1v-1.5Zm5 7h5.8v1.3h-5.9v-1.3Zm20 .5-1.3.4-3.6-11 1.3-.4 3.6 11Zm13.4-11 1.3.4-3.6 11-1.3-.4 3.6-11Zm10.6 10.5h5.9v1.3h-5.9v-1.3Zm20.1.5-1.4.4-3.5-11 1.3-.4 3.6 11Zm5.6.8h-1.4V13.7h1.4V26Zm13.5-8.3c-.2 0-.3-.2-.5-.4a1.2 1.2 0 0 1 0-1c0-.2 0-.3.2-.4l.3-.3a1 1 0 0 1 1 0l.3.3.2.3.1.5c0 .2 0 .4-.2.6l-.4.4v1.5h-1v-1.5Zm4.9 7h5.9v1.3h-6v-1.3Zm18.7-7.4h-1.2l-1-1.7h1.6l.6 1.7Zm10.7 7.4h5.9v1.3h-6v-1.3Zm20.1.5-1.4.4-3.6-11 1.4-.4 3.6 11Zm13.3-11 1.4.4-3.6 11-1.4-.4 3.6-11Zm10.7 10.5h5.8v1.3h-5.8v-1.3Zm11.3-7.4H369l-1-1.7h1.6l.6 1.7ZM385 14l1.3.4-3.6 11-1.3-.4 3.6-11Zm10.6 10.5h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3H403v-1.3Zm11 1.3h-1.5V13.7h1.5V26ZM2.4 37.9H1V25.7h1.4V38Zm14.7 0h-1.5V25.7h1.5V38Zm3.7-1.3h5.9v1.3h-6v-1.3Zm11 1.3h-1.5V25.7h1.5V38Zm14.7 0H45V25.7h1.5V38Zm17.1-1.5v1.5h-.5a5 5 0 0 1-1.7-.3 3.7 3.7 0 0 1-2.3-2.2c-.3-.6-.4-1.2-.4-2v-3.2c0-.8.1-1.4.4-2 .2-.6.5-1 1-1.4.3-.4.8-.6 1.3-.8a5 5 0 0 1 1.7-.3h.5v1.5h-.4l-1.2.2-.9.5-.6 1a4 4 0 0 0-.2 1.4v3c0 .5 0 1 .2 1.4l.6 1 1 .5 1 .2h.5Zm1.3.2h5.8v1.3H65v-1.3Zm11 1.3h-1.5V25.7H76V38Zm14.7 0H89V25.7h1.5V38Zm14.7 0h-1.5V25.7h1.5V38Zm14.7 0h-1.5V25.7h1.5V38Zm14.7 0h-1.5V25.7h1.5V38Zm14.6 0H148V25.7h1.4V38Zm14.7 0h-1.4V25.7h1.4V38Zm3.7-1.3h6v1.3h-6v-1.3Zm11 1.3h-1.4V25.7h1.4V38Zm14.7 0H192V25.7h1.4V38Zm14.7 0h-1.4V25.7h1.4V38Zm14.7 0h-1.4V25.7h1.4V38Zm17.2-1.5v1.5h-.5c-.6 0-1.2-.1-1.7-.3a3.7 3.7 0 0 1-2.4-2.2 6 6 0 0 1-.3-2v-3.2c0-.8 0-1.4.3-2 .3-.6.6-1 1-1.4.4-.4.8-.6 1.4-.8.5-.2 1-.3 1.7-.3h.5v1.5h-.5l-1.1.2-1 .5-.6 1a4 4 0 0 0-.2 1.4v3l.2 1.4.7 1c.2.2.5.4.9.5l1.1.2h.5Zm1.2.2h5.9v1.3h-5.9v-1.3Zm7.6-.2 1.1-.2 1-.5.5-1c.2-.4.3-.9.3-1.4v-3c0-.5-.1-1-.3-1.4a2.3 2.3 0 0 0-1.5-1.5l-1.1-.2h-.5v-1.5h.5c.6 0 1.2.1 1.7.3a3.7 3.7 0 0 1 2.4 2.2c.2.6.3 1.2.3 2v3.2a6 6 0 0 1-.3 2 3.7 3.7 0 0 1-2.4 2.2c-.5.2-1 .3-1.7.3h-.5v-1.5h.5Zm18.1 1.5h-1.4V25.7h1.4V38Zm14.7 0h-1.4V25.7h1.4V38Zm14.7 0h-1.4V25.7h1.4V38Zm14.7 0h-1.4V25.7h1.4V38Zm14.7 0h-1.5V25.7h1.5V38Zm14.7 0h-1.5V25.7h1.5V38Zm17.1-1.5v1.5h-.5a5 5 0 0 1-1.7-.3 3.7 3.7 0 0 1-2.3-2.2c-.3-.6-.4-1.2-.4-2v-3.2c0-.8.1-1.4.4-2 .2-.6.5-1 1-1.4.3-.4.8-.6 1.3-.8a5 5 0 0 1 1.7-.3h.5v1.5h-.4l-1.2.2-.9.5-.6 1a4 4 0 0 0-.2 1.4v3c0 .5 0 1 .2 1.4l.6 1 1 .5 1.1.2h.4Zm1.3.2h5.8v1.3h-5.8v-1.3Zm11 1.3h-1.5V25.7h1.5V38Zm16.4-.8-1.3.4-3.6-11 1.3-.4 3.6 11Zm2-.5h5.8v1.3h-5.8v-1.3Zm7.3 0h5.9v1.3h-5.9v-1.3Zm20.1.5-1.4.4-3.5-11 1.3-.4 3.6 11ZM11.5 49l-1.4.4-3.6-11 1.4-.4 3.6 11Zm2-.5h5.8v1.3h-5.9v-1.3Zm7.3 0h5.9v1.3h-6v-1.3Zm9.1-1.6.1-.4.3-.4.3-.2a1 1 0 0 1 .9 0 1 1 0 0 1 .6.6l.1.4v1.5c0 .3-.1.6-.3.8a1 1 0 0 1-.8.3h-.7v-1h.5c.3 0 .4 0 .4-.3V48H31a1 1 0 0 1-.5 0 1 1 0 0 1-.3-.3l-.3-.3V47ZM46.5 50H45V37.7h1.5V50Zm9-.8-1.3.4-3.6-11 1.4-.4 3.6 11Zm2-.5h5.9V50h-5.9v-1.3Zm7.4 0h5.8V50H65v-1.3ZM74 47v-.4c.2-.1.2-.3.3-.4l.4-.2a1 1 0 0 1 .9 0 1 1 0 0 1 .6.6v1.9c0 .3 0 .6-.2.8a1 1 0 0 1-.8.3h-.7v-1h.5c.2 0 .4 0 .4-.3V48H75a1 1 0 0 1-.4 0 1 1 0 0 1-.4-.3l-.2-.3V47Zm5.6 1.6h5.8v1.3h-5.8v-1.3Zm11 1.3H89V37.7h1.5V50Zm3.7-1.3h5.8v1.3h-5.8v-1.3Zm11 1.3h-1.5V37.7h1.5V50Zm14.7 0h-1.5V37.7h1.5V50Zm3.6-1.3h6v1.3h-6v-1.3Zm11 1.3h-1.4V37.7h1.5V50Zm23.9-.8-1.4.4-3.6-11 1.4-.4 3.6 11Zm1.9-.5h5.9v1.3h-6v-1.3Zm7.3 0h6v1.3h-6v-1.3Zm11 1.3h-1.4V37.7h1.4V50Zm3.7-1.3h5.9v1.3h-5.9v-1.3Zm11 1.3H192V37.7h1.4V50Zm14.7 0h-1.4V37.7h1.4V50Zm3.7-1.3h5.9v1.3h-5.9v-1.3Zm11 1.3h-1.4V37.7h1.4V50Zm9.1-.8-1.3.4-3.6-11 1.3-.4 3.6 11Zm2-.5h5.8v1.3H234v-1.3Zm7.3 0h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3h-5.8v-1.3ZM260 38l1.3.4-3.6 11-1.3-.4 3.6-11Zm7 11.8h-1.5V37.7h1.4V50Zm3.6-1.3h5.9v1.3h-5.9v-1.3Zm11 1.3h-1.4V37.7h1.4V50Zm14.7 0h-1.4V37.7h1.4V50Zm3.7-1.3h5.9v1.3h-6v-1.3Zm11 1.3h-1.4V37.7h1.4V50Zm14.7 0h-1.5V37.7h1.5V50Zm3.7-1.3h5.9v1.3h-6v-1.3Zm11 1.3h-1.5V37.7h1.5V50Zm9.1-.8-1.4.4-3.6-11 1.4-.4 3.6 11Zm2-.5h5.8v1.3h-5.9v-1.3Zm7.3 0h5.8v1.3h-5.8v-1.3Zm9.1-1.6.1-.4.3-.4.3-.2a1 1 0 0 1 .9 0 1 1 0 0 1 .6.6v1.9c0 .3 0 .6-.2.8a1 1 0 0 1-.8.3h-.7v-1h.5c.3 0 .4 0 .4-.3V48h-.2a1 1 0 0 1-.5 0 1 1 0 0 1-.3-.3c-.2 0-.2-.2-.3-.3V47Zm5.6 1.6h5.8v1.3h-5.8v-1.3Zm11 1.3H383V37.7h1.5V50Zm3.7-1.3h5.8v1.3h-5.8v-1.3Zm7.3 0h5.9v1.3h-5.9v-1.3Zm7.4 0h5.8v1.3H403v-1.3ZM414.3 38l1.3.4-3.6 11-1.3-.4 3.6-11ZM9.7 61.9H8.3V49.7h1.4V62Zm3.7-1.3h6v1.3h-6v-1.3Zm7.4 0h5.9v1.3h-6v-1.3Zm7.3 0H34v1.3h-5.9v-1.3ZM39.5 50l1.4.4-3.6 11-1.4-.4 3.6-11Z"
-                            />
-                        </svg>
-                        <div style="display: flex; flex-direction: column;">
-                            <h1 style="font-weight: 700;font-size: 48px; margin-bottom: 24px;">${props.title}</h1>
-                            <p style="font-size: 24px; text-wrap: pretty;">${props.description}</p>
-                        </div>
-                        <small style="font-size: 16px;">${
-			props.date ? Intl.DateTimeFormat("en", { dateStyle: "long" }).format(props.date) : ""
-		}</small>
-                    </div>
-                    <div style="display: flex; height: 100%; width: 703px;">
-                        <img src="${new URL("/avatar.png/", url)}" height="100%" width="100%" />
-                    </div>
-                </div>
-            `,
+		template: html(Object.assign([markup], { raw: [markup] }) as unknown as TemplateStringsArray),
 		width: 1200,
 		height: 630,
 	}).toResponse({
-		satori: {
-			fonts,
-		},
+		satori: { fonts },
 		response: {
-			headers: {
-				"Content-Type": "image/png",
-				"Cache-Control": "public, max-age=31536000, immutable",
-			},
+			headers: { "Content-Type": "image/png" },
 		},
 	});
 };
-
-export function getStaticPaths() {
-	return Object.entries(pages).map(([id, props]) => ({
-		params: { id },
-		props,
-	}));
-}

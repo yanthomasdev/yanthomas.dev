@@ -1,0 +1,60 @@
+---
+interface Props {
+	projects: { name: string; href: string; description: string }[];
+}
+
+const { projects } = Astro.props;
+---
+
+<ul>
+	{projects.map((project, i) => (
+		<li>
+			<span
+				aria-hidden="true"
+			>{i === projects.length - 1 ? "└──" : "├──"}</span>
+			<a href={project.href}>{project.name}</a>
+			<span>{project.description}</span>
+		</li>
+	))}
+</ul>
+
+<style>
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+li {
+	display: grid;
+	grid-template-columns: 4ch 16ch minmax(0, 1fr);
+	gap: 0 1ch;
+	padding: 7px 0;
+	align-items: baseline;
+}
+
+span:first-child {
+	color: var(--dim);
+	font-family: ui-monospace, monospace;
+}
+
+a {
+	justify-self: start;
+}
+
+span:last-child {
+	font-family: var(--font-read);
+	font-size: 1.0625rem;
+	color: var(--dim);
+}
+
+@media (max-width: 720px) {
+	li {
+		grid-template-columns: 4ch minmax(0, 1fr);
+	}
+
+	span:last-child {
+		grid-column: 2;
+	}
+}
+</style>

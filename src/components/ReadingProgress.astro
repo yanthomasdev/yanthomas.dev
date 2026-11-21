@@ -1,0 +1,55 @@
+<reading-progress>
+	<span aria-hidden="true" style="transform: scaleX(0)"></span>
+</reading-progress>
+
+<style>
+reading-progress {
+	display: contents;
+}
+
+span {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	height: 2px;
+	background: var(--acc);
+	transform-origin: 0 50%;
+}
+
+@media (min-width: 1001px) and (min-height: 761px) {
+	span {
+		display: none;
+	}
+}
+
+@media print {
+	span {
+		display: none;
+	}
+}
+
+@media (forced-colors: active) {
+	span {
+		background: CanvasText;
+		forced-color-adjust: none;
+	}
+}
+</style>
+
+<script>
+class ReadingProgress extends HTMLElement {
+	connectedCallback() {
+		const line = this.querySelector<HTMLElement>("span")!;
+
+		document.addEventListener("reading", (event) => {
+			const { progress } =
+				(event as CustomEvent<{ progress: number }>).detail;
+
+			line.style.transform = `scaleX(${progress.toFixed(4)})`;
+		});
+	}
+}
+
+customElements.define("reading-progress", ReadingProgress);
+</script>

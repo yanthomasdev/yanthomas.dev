@@ -1,34 +1,42 @@
 {
 	"name": "@yanthomasdev/website",
-	"type": "module",
 	"version": "2.0.0",
 	"private": true,
+	"type": "module",
+	"imports": {
+		"#*": "./src/*"
+	},
 	"scripts": {
 		"dev": "astro dev",
 		"build": "astro check && astro build",
 		"preview": "astro preview",
 		"format": "dprint fmt"
 	},
-	"imports": {
-		"#*": "./src/*"
-	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.6",
-		"@astrojs/mdx": "^4.3.12",
-		"@astrojs/sitemap": "^3.6.0",
-		"@fontsource/space-mono": "^5.2.9",
-		"astro": "^5.16.4",
-		"astro-expressive-code": "^0.38.3",
-		"hastscript": "^9.0.1",
-		"remark-directive": "^3.0.1",
-		"satori-astro": "^0.3.1",
+		"@astrojs/check": "^0.9.12",
+		"@astrojs/markdown-remark": "7.3.10",
+		"@astrojs/mdx": "^8.1.6",
+		"@astrojs/rss": "^4.0.19",
+		"@astrojs/sitemap": "^3.7.6",
+		"@fontsource/atkinson-hyperlegible-mono": "^5.3.0",
+		"@fontsource/atkinson-hyperlegible-next": "^5.3.0",
+		"@fontsource/jersey-15": "^5.3.0",
+		"@iconify-json/pixel": "^1.2.2",
+		"@octokit/graphql": "^9.0.5",
+		"astro": "^7.4.13",
+		"astro-expressive-code": "^0.44.4",
+		"astro-icon": "^1.2.0",
+		"rehype-autolink-headings": "^7.1.0",
+		"remark-directive": "^4.0.0",
+		"satori-astro": "^0.4.1",
 		"satori-html": "^0.3.2",
-		"sharp": "^0.34.5",
-		"typescript": "^5.9.3",
-		"unist-util-visit": "^5.0.0"
+		"sharp": "^0.35.5",
+		"typescript": "^6.0.3",
+		"unist-util-visit": "^5.2.0"
 	},
 	"devDependencies": {
-		"dprint": "^0.50.2"
+		"dprint": "^0.65.0",
+		"wrangler": "^4.166.0"
 	},
 	"packageManager": "pnpm@8.10.2+sha1.e0b68270e89c817ff88b7be62466a2128c53af02"
 }

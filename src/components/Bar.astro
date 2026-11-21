@@ -1,0 +1,68 @@
+---
+interface Props {
+	side: "left" | "right";
+	home?: boolean;
+	tag?: "header" | "div";
+}
+
+const { side, home = false, tag: Tag = "div" } = Astro.props;
+---
+
+<Tag class:list={["bar", side, { home }]}><slot /></Tag>
+
+<style>
+.bar {
+	height: var(--header-h);
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-6);
+	border-bottom: 1px solid var(--faint);
+	box-sizing: border-box;
+}
+
+.left {
+	padding-right: var(--space-4);
+}
+
+.right {
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	justify-content: flex-end;
+	background: var(--bg);
+	padding-left: clamp(var(--space-8), 4vw, var(--pane-gap));
+}
+
+.home {
+	justify-content: flex-end;
+}
+
+@media (max-width: 1000px) {
+	.left {
+		padding-right: 0;
+	}
+
+	.right {
+		padding-left: 0;
+		border-top: 1px solid var(--faint);
+	}
+
+	.home {
+		display: none;
+	}
+}
+
+@media (max-width: 400px) {
+	.bar {
+		gap: var(--space-4);
+	}
+}
+
+@media print {
+	.bar {
+		display: none;
+	}
+}
+</style>

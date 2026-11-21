@@ -1,68 +1,243 @@
 ---
-import Avatar from "#assets/avatar.svg";
-import Logo from "#assets/logo.svg";
+import ArticleRows from "#components/ArticleRows.astro";
+import ContributionGraph from "#components/ContributionGraph.astro";
+import ProjectTree from "#components/ProjectTree.astro";
+import SkipLink from "#components/SkipLink.astro";
+import Sponsors from "#components/Sponsors.astro";
+import SpriteAvatar from "#components/SpriteAvatar.astro";
 import Base from "#layouts/Base.astro";
+import Panes from "#layouts/Panes.astro";
+import { getCollection, getEntry } from "astro:content";
+import "#styles/box.css";
+
+const projects = [
+	{
+		name: "astro/",
+		href: "https://astro.build",
+		description: "The web framework for content-driven websites.",
+	},
+	{
+		name: "lunaria/",
+		href: "https://lunaria.dev",
+		description: "A localization toolkit for open-source projects.",
+	},
+	{
+		name: "craqueou/",
+		href: "https://craqueou.com.br",
+		description: "A daily football quiz to play with friends.",
+	},
+];
+
+const articles = (await getCollection("articles"))
+	.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const sponsors = (await getCollection("sponsors")).map((entry) => entry.data)
+	.sort((a, b) => a.order - b.order);
+
+const calendar = (await getEntry("contributions", "calendar"))?.data;
 ---
 
 <Base
-	title="Yan | Home"
 	description="Your friendly neighborhood open-source developer."
-	id="home"
+	ogId="home"
+	ogAlt="Yan Thomas in pixel type beside a pixel-art avatar of a white cat in round sunglasses, over a year of GitHub contributions."
 >
-	<main id="__page-content">
-		<div class="home-container">
-			<div>
-				<Avatar />
-			</div>
-			<div class="prose flow">
+	<SkipLink href="#main" label="Skip to projects and articles" />
+	<Panes home leftLabel="name">
+		<Fragment slot="left">
+			<div class="card">
+				<SpriteAvatar />
 				<div>
-					<h1>
-						Hello there, I am
-						<span class="sr-only">Yan Thomas</span>
-					</h1>
-					<Logo />
+					<h1 id="name"><span>Yan</span>{" "}<span>Thomas</span></h1>
+					{calendar && <ContributionGraph {...calendar} />}
 				</div>
+			</div>
+			<div class="bio">
 				<p>
-					I'm an open-source software developer from Brazil, working
-					on tooling, documentation, and accessibility.
-				</p>
-				<p>
-					I believe, stand, and work for a future where technology can
-					make a more democratic, inclusive, and free world.
+					I'm an open-source developer from Brazil, working on
+					tooling, documentation, and accessibility.
 				</p>
 				<p>
 					You might know my work as a core maintainer of <a
 						href="https://astro.build"
 					>Astro</a> or as the author of <a href="https://lunaria.dev"
-					>Lunaria</a>. If you'd like to support my work, you can <a
-						href="https://github.com/sponsors/yanthomasdev"
-					>sponsor me on GitHub</a>.
+					>Lunaria</a>.
+				</p>
+				<p>
+					I believe, stand, and work for a future where technology can
+					make a more democratic, inclusive, and free world.
 				</p>
 			</div>
-		</div>
-	</main>
+			<Sponsors sponsors={sponsors} />
+			<aside class="box box--reach" aria-labelledby="reach-label">
+				<div class="box-bar">
+					<span class="box-label" id="reach-label" aria-hidden="true"
+					>Reach out</span><i aria-hidden="true"></i><i
+						aria-hidden="true"
+					></i><i aria-hidden="true"></i>
+				</div>
+				<div class="box-body">
+					<p>
+						If you’re working on something I could help with, my
+						inbox is always open at&nbsp;<a
+							href="mailto:yanthomas.b@gmail.com"
+						>yanthomas.b@gmail.com</a>.
+					</p>
+				</div>
+			</aside>
+		</Fragment>
+
+		<section aria-labelledby="projects">
+			<h2 id="projects">projects/</h2>
+			<ProjectTree projects={projects} />
+		</section>
+
+		<section aria-labelledby="articles">
+			<h2 id="articles">articles/</h2>
+			<ArticleRows articles={articles} />
+		</section>
+	</Panes>
 </Base>
 
 <style>
-.prose h1 {
-	font-weight: 400;
-	font-size: var(--font-size--1);
-}
-
-.home-container {
+.card {
 	display: flex;
-	flex-wrap: wrap;
-	gap: var(--space-m);
+	align-items: flex-end;
+	gap: var(--space-5);
 }
 
-.home-container > :first-child {
-	flex-basis: 0;
-	flex-grow: 999;
-	min-width: min(20rem, 100%);
+.card > div {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	min-width: 0;
 }
 
-.home-container > :last-child {
-	flex-basis: 50%;
-	flex-grow: 1;
+h1 {
+	font-family: var(--font-pixel);
+	font-weight: 400;
+	font-size: 90px;
+	line-height: 0.6667;
+	letter-spacing: 0;
+	margin: 0;
+	white-space: nowrap;
+	text-transform: uppercase;
+}
+
+h1 > span {
+	display: block;
+}
+
+h2 {
+	font-family: var(--font-pixel);
+	font-weight: 400;
+	font-size: 1.875rem;
+	line-height: 1;
+	margin: 0 0 14px;
+	display: flex;
+	align-items: center;
+	gap: var(--space-4);
+}
+
+h2::after {
+	content: "";
+	flex: 0 0 120px;
+	margin-left: auto;
+	height: 8px;
+	background: var(--acc);
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3Crect x='8' y='0' width='2' height='2'/%3E%3Crect x='12' y='4' width='2' height='2'/%3E%3Crect x='16' y='0' width='2' height='2'/%3E%3Crect x='20' y='4' width='2' height='2'/%3E%3Crect x='24' y='0' width='2' height='2'/%3E%3Crect x='28' y='4' width='2' height='2'/%3E%3Crect x='32' y='0' width='2' height='2'/%3E%3Crect x='36' y='4' width='2' height='2'/%3E%3Crect x='40' y='0' width='2' height='2'/%3E%3Crect x='44' y='0' width='2' height='2'/%3E%3Crect x='42' y='4' width='2' height='2'/%3E%3Crect x='46' y='4' width='2' height='2'/%3E%3Crect x='48' y='0' width='2' height='2'/%3E%3Crect x='52' y='0' width='2' height='2'/%3E%3Crect x='50' y='4' width='2' height='2'/%3E%3Crect x='54' y='4' width='2' height='2'/%3E%3Crect x='56' y='0' width='2' height='2'/%3E%3Crect x='60' y='0' width='2' height='2'/%3E%3Crect x='58' y='4' width='2' height='2'/%3E%3Crect x='62' y='4' width='2' height='2'/%3E%3Crect x='64' y='0' width='2' height='2'/%3E%3Crect x='68' y='0' width='2' height='2'/%3E%3Crect x='66' y='4' width='2' height='2'/%3E%3Crect x='70' y='4' width='2' height='2'/%3E%3Crect x='72' y='0' width='2' height='2'/%3E%3Crect x='76' y='0' width='2' height='2'/%3E%3Crect x='74' y='4' width='2' height='2'/%3E%3Crect x='78' y='4' width='2' height='2'/%3E%3Crect x='80' y='0' width='2' height='2'/%3E%3Crect x='84' y='0' width='2' height='2'/%3E%3Crect x='82' y='2' width='2' height='2'/%3E%3Crect x='86' y='2' width='2' height='2'/%3E%3Crect x='80' y='4' width='2' height='2'/%3E%3Crect x='84' y='4' width='2' height='2'/%3E%3Crect x='82' y='6' width='2' height='2'/%3E%3Crect x='86' y='6' width='2' height='2'/%3E%3Crect x='88' y='0' width='2' height='2'/%3E%3Crect x='92' y='0' width='2' height='2'/%3E%3Crect x='90' y='2' width='2' height='2'/%3E%3Crect x='94' y='2' width='2' height='2'/%3E%3Crect x='88' y='4' width='2' height='2'/%3E%3Crect x='92' y='4' width='2' height='2'/%3E%3Crect x='90' y='6' width='2' height='2'/%3E%3Crect x='94' y='6' width='2' height='2'/%3E%3Crect x='96' y='0' width='2' height='2'/%3E%3Crect x='100' y='0' width='2' height='2'/%3E%3Crect x='98' y='2' width='2' height='2'/%3E%3Crect x='102' y='2' width='2' height='2'/%3E%3Crect x='96' y='4' width='2' height='2'/%3E%3Crect x='100' y='4' width='2' height='2'/%3E%3Crect x='98' y='6' width='2' height='2'/%3E%3Crect x='102' y='6' width='2' height='2'/%3E%3Crect x='104' y='0' width='2' height='2'/%3E%3Crect x='108' y='0' width='2' height='2'/%3E%3Crect x='106' y='2' width='2' height='2'/%3E%3Crect x='110' y='2' width='2' height='2'/%3E%3Crect x='104' y='4' width='2' height='2'/%3E%3Crect x='108' y='4' width='2' height='2'/%3E%3Crect x='106' y='6' width='2' height='2'/%3E%3Crect x='110' y='6' width='2' height='2'/%3E%3Crect x='112' y='0' width='2' height='2'/%3E%3Crect x='116' y='0' width='2' height='2'/%3E%3Crect x='114' y='2' width='2' height='2'/%3E%3Crect x='118' y='2' width='2' height='2'/%3E%3Crect x='112' y='4' width='2' height='2'/%3E%3Crect x='116' y='4' width='2' height='2'/%3E%3Crect x='114' y='6' width='2' height='2'/%3E%3Crect x='118' y='6' width='2' height='2'/%3E%3C/svg%3E")
+		0 0 / 120px 8px no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='4' y='4' width='2' height='2'/%3E%3Crect x='8' y='0' width='2' height='2'/%3E%3Crect x='12' y='4' width='2' height='2'/%3E%3Crect x='16' y='0' width='2' height='2'/%3E%3Crect x='20' y='4' width='2' height='2'/%3E%3Crect x='24' y='0' width='2' height='2'/%3E%3Crect x='28' y='4' width='2' height='2'/%3E%3Crect x='32' y='0' width='2' height='2'/%3E%3Crect x='36' y='4' width='2' height='2'/%3E%3Crect x='40' y='0' width='2' height='2'/%3E%3Crect x='44' y='0' width='2' height='2'/%3E%3Crect x='42' y='4' width='2' height='2'/%3E%3Crect x='46' y='4' width='2' height='2'/%3E%3Crect x='48' y='0' width='2' height='2'/%3E%3Crect x='52' y='0' width='2' height='2'/%3E%3Crect x='50' y='4' width='2' height='2'/%3E%3Crect x='54' y='4' width='2' height='2'/%3E%3Crect x='56' y='0' width='2' height='2'/%3E%3Crect x='60' y='0' width='2' height='2'/%3E%3Crect x='58' y='4' width='2' height='2'/%3E%3Crect x='62' y='4' width='2' height='2'/%3E%3Crect x='64' y='0' width='2' height='2'/%3E%3Crect x='68' y='0' width='2' height='2'/%3E%3Crect x='66' y='4' width='2' height='2'/%3E%3Crect x='70' y='4' width='2' height='2'/%3E%3Crect x='72' y='0' width='2' height='2'/%3E%3Crect x='76' y='0' width='2' height='2'/%3E%3Crect x='74' y='4' width='2' height='2'/%3E%3Crect x='78' y='4' width='2' height='2'/%3E%3Crect x='80' y='0' width='2' height='2'/%3E%3Crect x='84' y='0' width='2' height='2'/%3E%3Crect x='82' y='2' width='2' height='2'/%3E%3Crect x='86' y='2' width='2' height='2'/%3E%3Crect x='80' y='4' width='2' height='2'/%3E%3Crect x='84' y='4' width='2' height='2'/%3E%3Crect x='82' y='6' width='2' height='2'/%3E%3Crect x='86' y='6' width='2' height='2'/%3E%3Crect x='88' y='0' width='2' height='2'/%3E%3Crect x='92' y='0' width='2' height='2'/%3E%3Crect x='90' y='2' width='2' height='2'/%3E%3Crect x='94' y='2' width='2' height='2'/%3E%3Crect x='88' y='4' width='2' height='2'/%3E%3Crect x='92' y='4' width='2' height='2'/%3E%3Crect x='90' y='6' width='2' height='2'/%3E%3Crect x='94' y='6' width='2' height='2'/%3E%3Crect x='96' y='0' width='2' height='2'/%3E%3Crect x='100' y='0' width='2' height='2'/%3E%3Crect x='98' y='2' width='2' height='2'/%3E%3Crect x='102' y='2' width='2' height='2'/%3E%3Crect x='96' y='4' width='2' height='2'/%3E%3Crect x='100' y='4' width='2' height='2'/%3E%3Crect x='98' y='6' width='2' height='2'/%3E%3Crect x='102' y='6' width='2' height='2'/%3E%3Crect x='104' y='0' width='2' height='2'/%3E%3Crect x='108' y='0' width='2' height='2'/%3E%3Crect x='106' y='2' width='2' height='2'/%3E%3Crect x='110' y='2' width='2' height='2'/%3E%3Crect x='104' y='4' width='2' height='2'/%3E%3Crect x='108' y='4' width='2' height='2'/%3E%3Crect x='106' y='6' width='2' height='2'/%3E%3Crect x='110' y='6' width='2' height='2'/%3E%3Crect x='112' y='0' width='2' height='2'/%3E%3Crect x='116' y='0' width='2' height='2'/%3E%3Crect x='114' y='2' width='2' height='2'/%3E%3Crect x='118' y='2' width='2' height='2'/%3E%3Crect x='112' y='4' width='2' height='2'/%3E%3Crect x='116' y='4' width='2' height='2'/%3E%3Crect x='114' y='6' width='2' height='2'/%3E%3Crect x='118' y='6' width='2' height='2'/%3E%3C/svg%3E")
+		0 0 / 120px 8px no-repeat;
+}
+
+.bio {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	max-width: 30em;
+	margin: 8px 0 0;
+	font-family: var(--font-read);
+	font-size: 1.125rem;
+	line-height: 1.6;
+	color: var(--text);
+}
+
+.bio p {
+	margin: 0;
+}
+
+.bio p + p:last-child {
+	color: var(--dim);
+}
+
+@media (max-width: 1300px) {
+	h1 {
+		font-size: 60px;
+	}
+}
+
+@media (max-width: 1300px) and (min-width: 1001px), (max-width: 600px) {
+	.card {
+		--avatar: 144px;
+		flex-wrap: wrap;
+		row-gap: 14px;
+	}
+
+	.card > div {
+		display: contents;
+	}
+
+	.card :global(figure) {
+		flex: 1 0 100%;
+		order: 3;
+	}
+
+	.card :global(figure svg) {
+		max-width: 422px;
+	}
+}
+
+@media (max-width: 1000px) {
+	h1 {
+		font-size: 90px;
+	}
+}
+
+@media (max-width: 600px) {
+	h1 {
+		font-size: 60px;
+	}
+
+	.card {
+		gap: var(--space-4);
+	}
+
+	@supports (hyphenate-limit-chars: 8 4 3) {
+		.bio {
+			hyphens: auto;
+			hyphenate-limit-chars: 8 4 3;
+		}
+	}
+}
+
+@media (min-width: 1001px) and (max-height: 800px) {
+	.bio {
+		gap: 8px;
+		margin-top: 0;
+		font-size: 1.0625rem;
+		line-height: 1.5;
+	}
+}
+
+@media (min-width: 1001px) {
+	@container (max-width: 400px) {
+		.bio {
+			gap: 8px;
+			margin-top: 0;
+			font-size: 1.0625rem;
+			line-height: 1.5;
+		}
+	}
 }
 </style>
